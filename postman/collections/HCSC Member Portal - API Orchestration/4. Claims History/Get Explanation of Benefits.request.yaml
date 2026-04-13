@@ -1,0 +1,38 @@
+$kind: http-request
+description: Retrieve the most recent 10 Explanation of Benefit records for the
+  patient. Uses patientId from step 2. Returns claims with provider, diagnosis,
+  procedure, and payment details.
+url: "{{fhirBaseUrl}}/ExplanationOfBenefit?patient=Patient/{{patientId}}&_sort=\
+  -created&_count=10"
+method: GET
+headers:
+  Authorization: Bearer {{accessToken}}
+  Accept: application/fhir+json
+queryParams:
+  patient: Patient/{{patientId}}
+  _sort: -created
+  _count: "10"
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test("Status code is 200", function () {
+          pm.response.to.have.status(200);
+      });
+
+      pm.test("Claims retrieved", function () {
+          var bundle = pm.response.json();
+          pm.expect(bundle.resourceType).to.eql("Bundle");
+
+          var total = bundle.total || bundle.entry.length;
+          console.log("Claims found: " + total);
+
+          if (bundle.entry && bundle.entry.length > 0) {
+              var eob = bundle.entry[0].resource;
+              console.log("Most recent claim: " + eob.created);
+              console.log("Provider: " + eob.provider.display);
+              console.log("Status: " + eob.status);
+          }
+      });
+    language: text/javascript
+examples: ./.resources/Get Explanation of Benefits.resources/examples
+order: 1000

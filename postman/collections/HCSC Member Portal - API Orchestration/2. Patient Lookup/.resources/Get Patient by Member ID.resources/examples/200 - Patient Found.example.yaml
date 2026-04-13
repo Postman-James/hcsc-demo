@@ -1,0 +1,93 @@
+$kind: http-example
+request:
+  url: "{{fhirBaseUrl}}/Patient?identifier=HCSC-MBR-100234"
+  method: GET
+  headers:
+    Authorization: Bearer {{accessToken}}
+    Accept: application/fhir+json
+  queryParams:
+    identifier: HCSC-MBR-100234
+response:
+  statusCode: 200
+  statusText: OK
+  headers:
+    Content-Type: application/fhir+json
+  body:
+    type: json
+    content: >-
+      {
+        "resourceType": "Bundle",
+        "type": "searchset",
+        "total": 1,
+        "entry": [
+          {
+            "fullUrl": "https://interoperability.hcsc.com/fhir/r4/Patient/pat-8827341",
+            "resource": {
+              "resourceType": "Patient",
+              "id": "pat-8827341",
+              "identifier": [
+                {
+                  "system": "https://hcsc.com/member-id",
+                  "value": "HCSC-MBR-100234"
+                },
+                {
+                  "system": "http://hl7.org/fhir/sid/us-ssn",
+                  "value": "***-**-4521"
+                }
+              ],
+              "name": [
+                {
+                  "use": "official",
+                  "family": "Martinez",
+                  "given": [
+                    "Elena",
+                    "R"
+                  ]
+                }
+              ],
+              "gender": "female",
+              "birthDate": "1984-07-15",
+              "address": [
+                {
+                  "use": "home",
+                  "line": [
+                    "4521 W Monroe St"
+                  ],
+                  "city": "Chicago",
+                  "state": "IL",
+                  "postalCode": "60624"
+                }
+              ],
+              "telecom": [
+                {
+                  "system": "phone",
+                  "value": "(312) 555-0147",
+                  "use": "mobile"
+                },
+                {
+                  "system": "email",
+                  "value": "elena.martinez@email.com"
+                }
+              ],
+              "communication": [
+                {
+                  "language": {
+                    "coding": [
+                      {
+                        "system": "urn:ietf:bcp:47",
+                        "code": "en",
+                        "display": "English"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "managingOrganization": {
+                "reference": "Organization/bcbsil",
+                "display": "Blue Cross Blue Shield of Illinois"
+              }
+            }
+          }
+        ]
+      }
+order: 1000

@@ -1,0 +1,39 @@
+$kind: http-request
+description: Retrieve active coverage for the patient. Uses patientId from the
+  previous step. Returns plan details, coverage period, network, and payor
+  information.
+url: "{{fhirBaseUrl}}/Coverage?beneficiary=Patient/{{patientId}}&status=active"
+method: GET
+headers:
+  Authorization: Bearer {{accessToken}}
+  Accept: application/fhir+json
+queryParams:
+  beneficiary: Patient/{{patientId}}
+  status: active
+scripts:
+  - type: afterResponse
+    code: >-
+      pm.test("Status code is 200", function () {
+          pm.response.to.have.status(200);
+      });
+
+
+      pm.test("Coverage found and details stored", function () {
+          var bundle = pm.response.json();
+          pm.expect(bundle.entry).to.be.an("array").that.is.not.empty;
+
+          var coverage = bundle.entry[0].resource;
+          pm.collectionVariables.set("coverageId", coverage.id);
+
+          // Extract network from coverage class
+          var networkClass = coverage.class.find(c => c.type.coding[0].code === "network");
+          if (networkClass) {
+              pm.collectionVariables.set("networkId", networkClass.value);
+              console.log("Network: " + networkClass.name);
+          }
+          console.log("Coverage ID: " + coverage.id);
+          console.log("Plan: " + coverage.class.find(c => c.type.coding[0].code === "plan").name);
+      });
+    language: text/javascript
+examples: ./.resources/Get Member Coverage.resources/examples
+order: 1000

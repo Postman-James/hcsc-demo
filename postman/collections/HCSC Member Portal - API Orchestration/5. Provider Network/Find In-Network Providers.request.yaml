@@ -1,0 +1,38 @@
+$kind: http-request
+description: Find in-network providers using the network ID extracted from the
+  member coverage in step 3. Specialty code 208D00000X = General Practice.
+  Returns practitioners with their roles, locations, and availability.
+url: "{{fhirBaseUrl}}/PractitionerRole?organization.partof.identifier={{network\
+  Id}}&specialty=208D00000X&_include=PractitionerRole:practitioner&_count=20"
+method: GET
+headers:
+  Authorization: Bearer {{accessToken}}
+  Accept: application/fhir+json
+queryParams:
+  organization.partof.identifier: "{{networkId}}"
+  specialty: 208D00000X
+  _include: PractitionerRole:practitioner
+  _count: "20"
+scripts:
+  - type: afterResponse
+    code: >-
+      pm.test("Status code is 200", function () {
+          pm.response.to.have.status(200);
+      });
+
+
+      pm.test("Providers found in network", function () {
+          var bundle = pm.response.json();
+          pm.expect(bundle.resourceType).to.eql("Bundle");
+
+          var practitioners = bundle.entry.filter(e => e.resource.resourceType === "Practitioner");
+          console.log("In-network providers found: " + practitioners.length);
+
+          practitioners.slice(0, 3).forEach(function(p) {
+              var name = p.resource.name[0];
+              console.log("  - Dr. " + name.given[0] + " " + name.family);
+          });
+      });
+    language: text/javascript
+examples: ./.resources/Find In-Network Providers.resources/examples
+order: 1000

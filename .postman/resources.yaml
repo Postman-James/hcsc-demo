@@ -1,0 +1,15 @@
+# Use this workspace to collaborate
+workspace:
+  id: f69ec198-a27b-4c19-9d80-d3cec8ffbd53
+
+# Each entry here maps a local resource to one or more corresponding objects in Postman Cloud
+
+cloudResources:
+  collections:
+    ../postman/collections/HCSC Member Portal - API Orchestration: 52176198-60410884-6848-4efb-9f59-2800f61d7206
+
+# All resources in the `postman/` folder are automatically registered in Local View.
+# Point to additional files outside the `postman/` folder to register them individually. Example:
+#localResources:
+#  collections:
+#    - ../tests/E2E Test Collection/

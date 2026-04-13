@@ -1,0 +1,30 @@
+$kind: http-request
+description: OAuth2 client credentials flow. Returns an access token used for
+  all subsequent FHIR API calls.
+url: "{{fhirBaseUrl}}/auth/token"
+method: POST
+headers:
+  Content-Type: application/x-www-form-urlencoded
+body:
+  type: urlencoded
+  content:
+    grant_type: client_credentials
+    client_id: "{{clientId}}"
+    client_secret: "{{clientSecret}}"
+    scope: patient/*.read
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test("Status code is 200", function () {
+          pm.response.to.have.status(200);
+      });
+
+      pm.test("Access token received", function () {
+          var jsonData = pm.response.json();
+          pm.expect(jsonData.access_token).to.not.be.undefined;
+          pm.collectionVariables.set("accessToken", jsonData.access_token);
+          console.log("Token stored. Expires in: " + jsonData.expires_in + "s");
+      });
+    language: text/javascript
+examples: ./.resources/Get Access Token.resources/examples
+order: 1000

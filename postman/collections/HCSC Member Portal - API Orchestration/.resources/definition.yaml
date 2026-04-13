@@ -1,0 +1,16 @@
+$kind: collection
+description: >-
+  Multi-step FHIR R4 API orchestration flow simulating HCSC member portal
+  operations. Demonstrates chained API calls where each response feeds the next
+  request, mirroring real-world healthcare interoperability patterns.
+
+
+  Flow: Authenticate > Get Patient > Get Coverage > Get Claims > Get Providers
+variables:
+  fhirBaseUrl: https://825f1a38-58e2-45ba-ac0f-e5deee2a9ad4.mock.pstmn.io
+  clientId: demo-client-id
+  clientSecret: demo-client-secret
+  accessToken: ""
+  patientId: ""
+  coverageId: ""
+  networkId: ""

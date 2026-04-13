@@ -1,0 +1,337 @@
+$kind: http-example
+request:
+  url: "{{fhirBaseUrl}}/ExplanationOfBenefit?patient=Patient/{{patientId}}&_sort=\
+    -created&_count=10"
+  method: GET
+  headers:
+    Authorization: Bearer {{accessToken}}
+    Accept: application/fhir+json
+  queryParams:
+    patient: Patient/{{patientId}}
+    _sort: -created
+    _count: "10"
+response:
+  statusCode: 200
+  statusText: OK
+  headers:
+    Content-Type: application/fhir+json
+  body:
+    type: json
+    content: >-
+      {
+        "resourceType": "Bundle",
+        "type": "searchset",
+        "total": 3,
+        "entry": [
+          {
+            "resource": {
+              "resourceType": "ExplanationOfBenefit",
+              "id": "eob-99201",
+              "status": "active",
+              "type": {
+                "coding": [
+                  {
+                    "system": "http://terminology.hl7.org/CodeSystem/claim-type",
+                    "code": "professional",
+                    "display": "Professional"
+                  }
+                ]
+              },
+              "use": "claim",
+              "patient": {
+                "reference": "Patient/pat-8827341"
+              },
+              "created": "2025-03-15",
+              "insurer": {
+                "reference": "Organization/bcbsil",
+                "display": "Blue Cross Blue Shield of Illinois"
+              },
+              "provider": {
+                "reference": "Practitioner/prac-44210",
+                "display": "Dr. Sarah Chen, MD"
+              },
+              "outcome": "complete",
+              "diagnosis": [
+                {
+                  "sequence": 1,
+                  "diagnosisCodeableConcept": {
+                    "coding": [
+                      {
+                        "system": "http://hl7.org/fhir/sid/icd-10-cm",
+                        "code": "J06.9",
+                        "display": "Acute upper respiratory infection, unspecified"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "item": [
+                {
+                  "sequence": 1,
+                  "productOrService": {
+                    "coding": [
+                      {
+                        "system": "http://www.ama-assn.org/go/cpt",
+                        "code": "99213",
+                        "display": "Office visit, established patient, low complexity"
+                      }
+                    ]
+                  },
+                  "servicedDate": "2025-03-12",
+                  "net": {
+                    "value": 185.0,
+                    "currency": "USD"
+                  }
+                }
+              ],
+              "total": [
+                {
+                  "category": {
+                    "coding": [
+                      {
+                        "code": "submitted"
+                      }
+                    ]
+                  },
+                  "amount": {
+                    "value": 185.0,
+                    "currency": "USD"
+                  }
+                },
+                {
+                  "category": {
+                    "coding": [
+                      {
+                        "code": "benefit"
+                      }
+                    ]
+                  },
+                  "amount": {
+                    "value": 148.0,
+                    "currency": "USD"
+                  }
+                },
+                {
+                  "category": {
+                    "coding": [
+                      {
+                        "code": "copay"
+                      }
+                    ]
+                  },
+                  "amount": {
+                    "value": 30.0,
+                    "currency": "USD"
+                  }
+                }
+              ],
+              "payment": {
+                "amount": {
+                  "value": 148.0,
+                  "currency": "USD"
+                },
+                "date": "2025-03-22"
+              }
+            }
+          },
+          {
+            "resource": {
+              "resourceType": "ExplanationOfBenefit",
+              "id": "eob-98847",
+              "status": "active",
+              "type": {
+                "coding": [
+                  {
+                    "system": "http://terminology.hl7.org/CodeSystem/claim-type",
+                    "code": "professional",
+                    "display": "Professional"
+                  }
+                ]
+              },
+              "use": "claim",
+              "patient": {
+                "reference": "Patient/pat-8827341"
+              },
+              "created": "2025-02-20",
+              "insurer": {
+                "reference": "Organization/bcbsil",
+                "display": "Blue Cross Blue Shield of Illinois"
+              },
+              "provider": {
+                "reference": "Practitioner/prac-55102",
+                "display": "Dr. Michael Torres, DDS"
+              },
+              "outcome": "complete",
+              "diagnosis": [
+                {
+                  "sequence": 1,
+                  "diagnosisCodeableConcept": {
+                    "coding": [
+                      {
+                        "system": "http://hl7.org/fhir/sid/icd-10-cm",
+                        "code": "Z01.20",
+                        "display": "Encounter for dental examination and cleaning"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "item": [
+                {
+                  "sequence": 1,
+                  "productOrService": {
+                    "coding": [
+                      {
+                        "system": "http://www.ada.org/cdt",
+                        "code": "D0120",
+                        "display": "Periodic oral evaluation"
+                      }
+                    ]
+                  },
+                  "servicedDate": "2025-02-18",
+                  "net": {
+                    "value": 95.0,
+                    "currency": "USD"
+                  }
+                }
+              ],
+              "total": [
+                {
+                  "category": {
+                    "coding": [
+                      {
+                        "code": "submitted"
+                      }
+                    ]
+                  },
+                  "amount": {
+                    "value": 95.0,
+                    "currency": "USD"
+                  }
+                },
+                {
+                  "category": {
+                    "coding": [
+                      {
+                        "code": "benefit"
+                      }
+                    ]
+                  },
+                  "amount": {
+                    "value": 95.0,
+                    "currency": "USD"
+                  }
+                }
+              ],
+              "payment": {
+                "amount": {
+                  "value": 95.0,
+                  "currency": "USD"
+                },
+                "date": "2025-02-28"
+              }
+            }
+          },
+          {
+            "resource": {
+              "resourceType": "ExplanationOfBenefit",
+              "id": "eob-97203",
+              "status": "active",
+              "type": {
+                "coding": [
+                  {
+                    "system": "http://terminology.hl7.org/CodeSystem/claim-type",
+                    "code": "pharmacy",
+                    "display": "Pharmacy"
+                  }
+                ]
+              },
+              "use": "claim",
+              "patient": {
+                "reference": "Patient/pat-8827341"
+              },
+              "created": "2025-01-10",
+              "insurer": {
+                "reference": "Organization/bcbsil",
+                "display": "Blue Cross Blue Shield of Illinois"
+              },
+              "provider": {
+                "reference": "Organization/pharm-CVS-60624",
+                "display": "CVS Pharmacy #8841"
+              },
+              "outcome": "complete",
+              "item": [
+                {
+                  "sequence": 1,
+                  "productOrService": {
+                    "coding": [
+                      {
+                        "system": "http://www.nlm.nih.gov/research/umls/rxnorm",
+                        "code": "314076",
+                        "display": "Lisinopril 10mg tablet"
+                      }
+                    ]
+                  },
+                  "quantity": {
+                    "value": 30
+                  },
+                  "servicedDate": "2025-01-08",
+                  "net": {
+                    "value": 42.0,
+                    "currency": "USD"
+                  }
+                }
+              ],
+              "total": [
+                {
+                  "category": {
+                    "coding": [
+                      {
+                        "code": "submitted"
+                      }
+                    ]
+                  },
+                  "amount": {
+                    "value": 42.0,
+                    "currency": "USD"
+                  }
+                },
+                {
+                  "category": {
+                    "coding": [
+                      {
+                        "code": "benefit"
+                      }
+                    ]
+                  },
+                  "amount": {
+                    "value": 32.0,
+                    "currency": "USD"
+                  }
+                },
+                {
+                  "category": {
+                    "coding": [
+                      {
+                        "code": "copay"
+                      }
+                    ]
+                  },
+                  "amount": {
+                    "value": 10.0,
+                    "currency": "USD"
+                  }
+                }
+              ],
+              "payment": {
+                "amount": {
+                  "value": 32.0,
+                  "currency": "USD"
+                },
+                "date": "2025-01-15"
+              }
+            }
+          }
+        ]
+      }
+order: 1000

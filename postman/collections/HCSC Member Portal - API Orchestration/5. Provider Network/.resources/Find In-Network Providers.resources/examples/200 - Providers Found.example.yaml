@@ -1,0 +1,195 @@
+$kind: http-example
+request:
+  url: "{{fhirBaseUrl}}/PractitionerRole?organization.partof.identifier={{network\
+    Id}}&specialty=208D00000X&_include=PractitionerRole:practitioner&_count=20"
+  method: GET
+  headers:
+    Authorization: Bearer {{accessToken}}
+    Accept: application/fhir+json
+  queryParams:
+    organization.partof.identifier: "{{networkId}}"
+    specialty: 208D00000X
+    _include: PractitionerRole:practitioner
+    _count: "20"
+response:
+  statusCode: 200
+  statusText: OK
+  headers:
+    Content-Type: application/fhir+json
+  body:
+    type: json
+    content: >-
+      {
+        "resourceType": "Bundle",
+        "type": "searchset",
+        "total": 4,
+        "entry": [
+          {
+            "resource": {
+              "resourceType": "PractitionerRole",
+              "id": "role-44210",
+              "practitioner": {
+                "reference": "Practitioner/prac-44210",
+                "display": "Dr. Sarah Chen, MD"
+              },
+              "organization": {
+                "reference": "Organization/org-lakeshore-med",
+                "display": "Lakeshore Medical Group"
+              },
+              "specialty": [
+                {
+                  "coding": [
+                    {
+                      "system": "http://nucc.org/provider-taxonomy",
+                      "code": "208D00000X",
+                      "display": "General Practice"
+                    }
+                  ]
+                }
+              ],
+              "location": [
+                {
+                  "reference": "Location/loc-2241",
+                  "display": "2241 N Lincoln Ave, Chicago, IL 60614"
+                }
+              ],
+              "telecom": [
+                {
+                  "system": "phone",
+                  "value": "(773) 555-0192"
+                }
+              ],
+              "availableTime": [
+                {
+                  "daysOfWeek": [
+                    "mon",
+                    "tue",
+                    "wed",
+                    "thu",
+                    "fri"
+                  ],
+                  "availableStartTime": "08:00:00",
+                  "availableEndTime": "17:00:00"
+                }
+              ]
+            }
+          },
+          {
+            "resource": {
+              "resourceType": "Practitioner",
+              "id": "prac-44210",
+              "name": [
+                {
+                  "use": "official",
+                  "family": "Chen",
+                  "given": [
+                    "Sarah"
+                  ],
+                  "prefix": [
+                    "Dr."
+                  ]
+                }
+              ],
+              "gender": "female",
+              "qualification": [
+                {
+                  "code": {
+                    "coding": [
+                      {
+                        "system": "http://terminology.hl7.org/CodeSystem/v2-0360",
+                        "code": "MD"
+                      }
+                    ]
+                  },
+                  "issuer": {
+                    "display": "Illinois DFPR"
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "resource": {
+              "resourceType": "PractitionerRole",
+              "id": "role-61839",
+              "practitioner": {
+                "reference": "Practitioner/prac-61839",
+                "display": "Dr. James Okafor, MD"
+              },
+              "organization": {
+                "reference": "Organization/org-midwest-primary",
+                "display": "Midwest Primary Care Associates"
+              },
+              "specialty": [
+                {
+                  "coding": [
+                    {
+                      "system": "http://nucc.org/provider-taxonomy",
+                      "code": "208D00000X",
+                      "display": "General Practice"
+                    }
+                  ]
+                }
+              ],
+              "location": [
+                {
+                  "reference": "Location/loc-5580",
+                  "display": "5580 W Madison St, Chicago, IL 60644"
+                }
+              ],
+              "telecom": [
+                {
+                  "system": "phone",
+                  "value": "(773) 555-0384"
+                }
+              ],
+              "availableTime": [
+                {
+                  "daysOfWeek": [
+                    "mon",
+                    "wed",
+                    "fri"
+                  ],
+                  "availableStartTime": "09:00:00",
+                  "availableEndTime": "16:00:00"
+                }
+              ]
+            }
+          },
+          {
+            "resource": {
+              "resourceType": "Practitioner",
+              "id": "prac-61839",
+              "name": [
+                {
+                  "use": "official",
+                  "family": "Okafor",
+                  "given": [
+                    "James"
+                  ],
+                  "prefix": [
+                    "Dr."
+                  ]
+                }
+              ],
+              "gender": "male",
+              "qualification": [
+                {
+                  "code": {
+                    "coding": [
+                      {
+                        "system": "http://terminology.hl7.org/CodeSystem/v2-0360",
+                        "code": "MD"
+                      }
+                    ]
+                  },
+                  "issuer": {
+                    "display": "Illinois DFPR"
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      }
+order: 1000
