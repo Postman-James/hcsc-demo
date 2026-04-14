@@ -1,0 +1,28 @@
+$kind: http-example
+request:
+  url: "{{fhirBaseUrl}}/Patient?identifier=INVALID-000000"
+  method: GET
+  headers:
+    Authorization: Bearer {{accessToken}}
+    Accept: application/fhir+json
+  queryParams:
+    identifier: INVALID-000000
+response:
+  statusCode: 404
+  statusText: Not Found
+  headers:
+    Content-Type: application/fhir+json
+  body:
+    type: json
+    content: |-
+      {
+        "resourceType": "OperationOutcome",
+        "issue": [
+          {
+            "severity": "error",
+            "code": "not-found",
+            "diagnostics": "No patient found for identifier 'INVALID-000000'. Verify the member ID and try again."
+          }
+        ]
+      }
+order: 2000

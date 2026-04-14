@@ -1,0 +1,31 @@
+$kind: http-example
+request:
+  url: "{{fhirBaseUrl}}/PractitionerRole?organization.partof.identifier=NET-INVALID&specialty=208D00000X&_include=PractitionerRole:practitioner&_count=20"
+  method: GET
+  headers:
+    Authorization: Bearer {{accessToken}}
+    Accept: application/fhir+json
+  queryParams:
+    organization.partof.identifier: NET-INVALID
+    specialty: 208D00000X
+    _include: PractitionerRole:practitioner
+    _count: "20"
+response:
+  statusCode: 404
+  statusText: Not Found
+  headers:
+    Content-Type: application/fhir+json
+  body:
+    type: json
+    content: |-
+      {
+        "resourceType": "OperationOutcome",
+        "issue": [
+          {
+            "severity": "error",
+            "code": "not-found",
+            "diagnostics": "No providers found for network 'NET-INVALID'. Verify the network identifier from the member's coverage."
+          }
+        ]
+      }
+order: 2000

@@ -1,0 +1,29 @@
+$kind: http-example
+request:
+  url: "{{fhirBaseUrl}}/Coverage?beneficiary=Patient/pat-0000000&status=active"
+  method: GET
+  headers:
+    Authorization: Bearer {{accessToken}}
+    Accept: application/fhir+json
+  queryParams:
+    beneficiary: Patient/pat-0000000
+    status: active
+response:
+  statusCode: 404
+  statusText: Not Found
+  headers:
+    Content-Type: application/fhir+json
+  body:
+    type: json
+    content: |-
+      {
+        "resourceType": "OperationOutcome",
+        "issue": [
+          {
+            "severity": "error",
+            "code": "not-found",
+            "diagnostics": "No active coverage found for patient 'pat-0000000'. Member may be inactive or coverage may have lapsed."
+          }
+        ]
+      }
+order: 2000

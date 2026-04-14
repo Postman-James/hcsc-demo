@@ -1,0 +1,31 @@
+$kind: http-example
+request:
+  url: "{{fhirBaseUrl}}/PractitionerRole?organization.partof.identifier={{networkId}}&specialty=208D00000X&_include=PractitionerRole:practitioner&_count=20"
+  method: GET
+  headers:
+    Authorization: Bearer {{accessToken}}
+    Accept: application/fhir+json
+  queryParams:
+    organization.partof.identifier: "{{networkId}}"
+    specialty: 208D00000X
+    _include: PractitionerRole:practitioner
+    _count: "20"
+response:
+  statusCode: 500
+  statusText: Internal Server Error
+  headers:
+    Content-Type: application/fhir+json
+  body:
+    type: json
+    content: |-
+      {
+        "resourceType": "OperationOutcome",
+        "issue": [
+          {
+            "severity": "fatal",
+            "code": "exception",
+            "diagnostics": "Provider directory service encountered a database connection failure. Request ID: req-3b7d4c82"
+          }
+        ]
+      }
+order: 3000

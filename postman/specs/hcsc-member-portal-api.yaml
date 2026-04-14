@@ -75,6 +75,18 @@ paths:
                 token_type: Bearer
                 expires_in: 3600
                 scope: patient/*.read
+        '404':
+          description: Client application not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OperationOutcome'
+        '500':
+          description: Authorization service unavailable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OperationOutcome'
 
   /Patient:
     get:
@@ -100,6 +112,18 @@ paths:
             application/fhir+json:
               schema:
                 $ref: '#/components/schemas/PatientBundle'
+        '404':
+          description: No patient found for the given identifier
+          content:
+            application/fhir+json:
+              schema:
+                $ref: '#/components/schemas/OperationOutcome'
+        '500':
+          description: Patient index service error
+          content:
+            application/fhir+json:
+              schema:
+                $ref: '#/components/schemas/OperationOutcome'
 
   /Coverage:
     get:
@@ -133,6 +157,18 @@ paths:
             application/fhir+json:
               schema:
                 $ref: '#/components/schemas/CoverageBundle'
+        '404':
+          description: No active coverage found for patient
+          content:
+            application/fhir+json:
+              schema:
+                $ref: '#/components/schemas/OperationOutcome'
+        '500':
+          description: Coverage eligibility service error
+          content:
+            application/fhir+json:
+              schema:
+                $ref: '#/components/schemas/OperationOutcome'
 
   /ExplanationOfBenefit:
     get:
@@ -173,6 +209,18 @@ paths:
             application/fhir+json:
               schema:
                 $ref: '#/components/schemas/EOBBundle'
+        '404':
+          description: No claims history found for patient
+          content:
+            application/fhir+json:
+              schema:
+                $ref: '#/components/schemas/OperationOutcome'
+        '500':
+          description: Claims processing engine error
+          content:
+            application/fhir+json:
+              schema:
+                $ref: '#/components/schemas/OperationOutcome'
 
   /PractitionerRole:
     get:
@@ -219,6 +267,18 @@ paths:
             application/fhir+json:
               schema:
                 $ref: '#/components/schemas/PractitionerRoleBundle'
+        '404':
+          description: No providers found for network
+          content:
+            application/fhir+json:
+              schema:
+                $ref: '#/components/schemas/OperationOutcome'
+        '500':
+          description: Provider directory service error
+          content:
+            application/fhir+json:
+              schema:
+                $ref: '#/components/schemas/OperationOutcome'
 
 components:
   securitySchemes:
@@ -228,6 +288,26 @@ components:
       description: Access token from /auth/token endpoint
 
   schemas:
+    OperationOutcome:
+      type: object
+      description: FHIR OperationOutcome for error responses
+      properties:
+        resourceType:
+          type: string
+          enum: [OperationOutcome]
+        issue:
+          type: array
+          items:
+            type: object
+            properties:
+              severity:
+                type: string
+                enum: [fatal, error, warning, information]
+              code:
+                type: string
+              diagnostics:
+                type: string
+
     TokenResponse:
       type: object
       properties:

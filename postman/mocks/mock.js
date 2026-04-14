@@ -255,6 +255,36 @@ function buildProvidersResponse(member) {
   };
 }
 
+// --- Error responses ---
+// Trigger via query param: ?_status=404 or ?_status=500
+
+function errorResponse(code, endpoint) {
+  const errors = {
+    "/auth/token": {
+      404: { severity: "error", code: "not-found", diagnostics: "Client application not found. Verify client_id is registered." },
+      500: { severity: "fatal", code: "exception", diagnostics: "Authorization service unavailable. Contact system administrator." }
+    },
+    "/Patient": {
+      404: { severity: "error", code: "not-found", diagnostics: "No patient found for the given identifier. Verify the member ID and try again." },
+      500: { severity: "fatal", code: "exception", diagnostics: "Patient index service encountered an unexpected error. Request ID: req-7f3a2b91" }
+    },
+    "/Coverage": {
+      404: { severity: "error", code: "not-found", diagnostics: "No active coverage found for this patient. Member may be inactive or coverage may have lapsed." },
+      500: { severity: "fatal", code: "exception", diagnostics: "Coverage eligibility service timed out. Upstream payor system unavailable. Request ID: req-4e8c1d05" }
+    },
+    "/ExplanationOfBenefit": {
+      404: { severity: "error", code: "not-found", diagnostics: "No claims history found for this patient. Patient may not have any processed claims." },
+      500: { severity: "fatal", code: "exception", diagnostics: "Claims processing engine returned an unexpected error. Adjudication service may be undergoing maintenance. Request ID: req-9a2f6e31" }
+    },
+    "/PractitionerRole": {
+      404: { severity: "error", code: "not-found", diagnostics: "No providers found for this network. Verify the network identifier from the member's coverage." },
+      500: { severity: "fatal", code: "exception", diagnostics: "Provider directory service encountered a database connection failure. Request ID: req-3b7d4c82" }
+    }
+  };
+  const issue = (errors[endpoint] && errors[endpoint][code]) || { severity: "error", code: "unknown", diagnostics: "Unknown error" };
+  return { resourceType: "OperationOutcome", issue: [issue] };
+}
+
 // --- Server ---
 
 function sendJson(res, statusCode, body, contentType = "application/json") {
@@ -267,41 +297,55 @@ const server = http.createServer((req, res) => {
   const method = req.method;
   const pathname = parsedUrl.pathname;
 
+  // Error simulation: ?_status=404 or ?_status=500
+  const forceStatus = parseInt(parsedUrl.searchParams.get("_status"), 10);
+
   // Request logging
   const identifier = parsedUrl.searchParams.get("identifier") || "";
   const logExtra = identifier ? ` [${identifier}]` : "";
-  console.log(`${new Date().toISOString().slice(11,19)} ${method} ${pathname}${logExtra}`);
+  const statusExtra = forceStatus ? ` -> FORCED ${forceStatus}` : "";
+  console.log(`${new Date().toISOString().slice(11,19)} ${method} ${pathname}${logExtra}${statusExtra}`);
 
   // @endpoint POST /auth/token
-  // POST /auth/token
   if (method === "POST" && pathname === "/auth/token") {
+    if (forceStatus === 404 || forceStatus === 500) {
+      return sendJson(res, forceStatus, errorResponse(forceStatus, "/auth/token"), "application/json");
+    }
     return sendJson(res, 200, tokenResponse(), "application/json");
   }
 
   // @endpoint GET /Patient
-  // GET /Patient
   if (method === "GET" && pathname === "/Patient") {
+    if (forceStatus === 404 || forceStatus === 500) {
+      return sendJson(res, forceStatus, errorResponse(forceStatus, "/Patient"), "application/fhir+json");
+    }
     const { member, memberId } = lookupMember(parsedUrl);
     return sendJson(res, 200, buildPatientResponse(member, memberId), "application/fhir+json");
   }
 
   // @endpoint GET /Coverage
-  // GET /Coverage
   if (method === "GET" && pathname === "/Coverage") {
+    if (forceStatus === 404 || forceStatus === 500) {
+      return sendJson(res, forceStatus, errorResponse(forceStatus, "/Coverage"), "application/fhir+json");
+    }
     const { member, memberId } = lookupMember(parsedUrl);
     return sendJson(res, 200, buildCoverageResponse(member, memberId), "application/fhir+json");
   }
 
   // @endpoint GET /ExplanationOfBenefit
-  // GET /ExplanationOfBenefit
   if (method === "GET" && pathname === "/ExplanationOfBenefit") {
+    if (forceStatus === 404 || forceStatus === 500) {
+      return sendJson(res, forceStatus, errorResponse(forceStatus, "/ExplanationOfBenefit"), "application/fhir+json");
+    }
     const { member, memberId } = lookupMember(parsedUrl);
     return sendJson(res, 200, buildEobResponse(member, memberId), "application/fhir+json");
   }
 
   // @endpoint GET /PractitionerRole
-  // GET /PractitionerRole
   if (method === "GET" && pathname === "/PractitionerRole") {
+    if (forceStatus === 404 || forceStatus === 500) {
+      return sendJson(res, forceStatus, errorResponse(forceStatus, "/PractitionerRole"), "application/fhir+json");
+    }
     const { member } = lookupMember(parsedUrl);
     return sendJson(res, 200, buildProvidersResponse(member), "application/fhir+json");
   }

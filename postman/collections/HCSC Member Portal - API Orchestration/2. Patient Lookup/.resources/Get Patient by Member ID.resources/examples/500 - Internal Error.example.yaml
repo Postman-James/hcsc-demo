@@ -1,0 +1,28 @@
+$kind: http-example
+request:
+  url: "{{fhirBaseUrl}}/Patient?identifier={{memberId}}"
+  method: GET
+  headers:
+    Authorization: Bearer {{accessToken}}
+    Accept: application/fhir+json
+  queryParams:
+    identifier: "{{memberId}}"
+response:
+  statusCode: 500
+  statusText: Internal Server Error
+  headers:
+    Content-Type: application/fhir+json
+  body:
+    type: json
+    content: |-
+      {
+        "resourceType": "OperationOutcome",
+        "issue": [
+          {
+            "severity": "fatal",
+            "code": "exception",
+            "diagnostics": "Patient index service encountered an unexpected error. Request ID: req-7f3a2b91"
+          }
+        ]
+      }
+order: 3000

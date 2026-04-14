@@ -1,0 +1,32 @@
+$kind: http-example
+request:
+  url: "{{fhirBaseUrl}}/auth/token"
+  method: POST
+  headers:
+    Content-Type: application/x-www-form-urlencoded
+  body:
+    type: urlencoded
+    content:
+      grant_type: client_credentials
+      client_id: invalid-client
+      client_secret: invalid-secret
+      scope: patient/*.read
+response:
+  statusCode: 404
+  statusText: Not Found
+  headers:
+    Content-Type: application/json
+  body:
+    type: json
+    content: |-
+      {
+        "resourceType": "OperationOutcome",
+        "issue": [
+          {
+            "severity": "error",
+            "code": "not-found",
+            "diagnostics": "Client application not found. Verify client_id is registered."
+          }
+        ]
+      }
+order: 2000

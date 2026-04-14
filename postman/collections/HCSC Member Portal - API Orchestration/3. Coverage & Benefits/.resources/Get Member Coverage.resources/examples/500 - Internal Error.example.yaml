@@ -1,0 +1,29 @@
+$kind: http-example
+request:
+  url: "{{fhirBaseUrl}}/Coverage?beneficiary=Patient/{{patientId}}&status=active"
+  method: GET
+  headers:
+    Authorization: Bearer {{accessToken}}
+    Accept: application/fhir+json
+  queryParams:
+    beneficiary: Patient/{{patientId}}
+    status: active
+response:
+  statusCode: 500
+  statusText: Internal Server Error
+  headers:
+    Content-Type: application/fhir+json
+  body:
+    type: json
+    content: |-
+      {
+        "resourceType": "OperationOutcome",
+        "issue": [
+          {
+            "severity": "fatal",
+            "code": "exception",
+            "diagnostics": "Coverage eligibility service timed out. Upstream payor system unavailable. Request ID: req-4e8c1d05"
+          }
+        ]
+      }
+order: 3000

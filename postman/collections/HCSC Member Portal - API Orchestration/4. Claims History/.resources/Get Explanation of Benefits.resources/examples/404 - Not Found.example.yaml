@@ -1,0 +1,30 @@
+$kind: http-example
+request:
+  url: "{{fhirBaseUrl}}/ExplanationOfBenefit?patient=Patient/pat-0000000&_sort=-created&_count=10"
+  method: GET
+  headers:
+    Authorization: Bearer {{accessToken}}
+    Accept: application/fhir+json
+  queryParams:
+    patient: Patient/pat-0000000
+    _sort: -created
+    _count: "10"
+response:
+  statusCode: 404
+  statusText: Not Found
+  headers:
+    Content-Type: application/fhir+json
+  body:
+    type: json
+    content: |-
+      {
+        "resourceType": "OperationOutcome",
+        "issue": [
+          {
+            "severity": "error",
+            "code": "not-found",
+            "diagnostics": "No claims history found for patient 'pat-0000000'. Patient may not have any processed claims."
+          }
+        ]
+      }
+order: 2000
