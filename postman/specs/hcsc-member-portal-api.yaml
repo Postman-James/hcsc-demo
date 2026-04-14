@@ -1,0 +1,683 @@
+openapi: 3.1.0
+info:
+  title: HCSC Member Portal API
+  description: >
+    FHIR R4-based API for Health Care Service Corporation member portal operations.
+    Supports patient lookup, coverage verification, claims history, and provider
+    network search across HCSC's five operating states (IL, TX, NM, OK, MT).
+  version: 1.0.0
+  contact:
+    name: HCSC Interoperability Team
+    email: interop@hcsc.com
+
+servers:
+  - url: http://127.0.0.1:4500
+    description: Local Mock (Postman built-in)
+  - url: http://127.0.0.1:4501
+    description: Local Enhanced Mock (dynamic responses)
+  - url: https://825f1a38-58e2-45ba-ac0f-e5deee2a9ad4.mock.pstmn.io
+    description: Postman Cloud Mock
+
+tags:
+  - name: Authentication
+    description: OAuth2 client credentials token exchange
+  - name: Patient
+    description: FHIR Patient resource lookup
+  - name: Coverage
+    description: Member coverage and benefits
+  - name: Claims
+    description: Explanation of Benefits (EOB) records
+  - name: Providers
+    description: In-network provider search
+
+paths:
+  /auth/token:
+    post:
+      operationId: getAccessToken
+      summary: Get Access Token
+      description: OAuth2 client credentials flow. Returns an access token for all subsequent FHIR API calls.
+      tags:
+        - Authentication
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              required:
+                - grant_type
+                - client_id
+                - client_secret
+              properties:
+                grant_type:
+                  type: string
+                  enum: [client_credentials]
+                  example: client_credentials
+                client_id:
+                  type: string
+                  example: demo-client-id
+                client_secret:
+                  type: string
+                  format: password
+                  example: demo-client-secret
+                scope:
+                  type: string
+                  example: patient/*.read
+      responses:
+        '200':
+          description: Token issued successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenResponse'
+              example:
+                access_token: mock-access-token
+                token_type: Bearer
+                expires_in: 3600
+                scope: patient/*.read
+
+  /Patient:
+    get:
+      operationId: getPatientByMemberId
+      summary: Get Patient by Member ID
+      description: Look up a member by their HCSC member ID. Returns a FHIR Bundle containing the Patient resource with demographics, identifiers, and organization links.
+      tags:
+        - Patient
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: identifier
+          in: query
+          required: true
+          description: HCSC member ID (e.g., HCSC-IL-100001)
+          schema:
+            type: string
+            example: HCSC-IL-100001
+      responses:
+        '200':
+          description: Patient found
+          content:
+            application/fhir+json:
+              schema:
+                $ref: '#/components/schemas/PatientBundle'
+
+  /Coverage:
+    get:
+      operationId: getMemberCoverage
+      summary: Get Member Coverage
+      description: Retrieve active coverage for a patient. Returns plan details, coverage period, network information, payor, and cost-to-beneficiary data.
+      tags:
+        - Coverage
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: beneficiary
+          in: query
+          required: true
+          description: FHIR Patient reference (e.g., Patient/pat-1234567)
+          schema:
+            type: string
+            example: Patient/pat-8827341
+        - name: status
+          in: query
+          required: false
+          description: Filter by coverage status
+          schema:
+            type: string
+            enum: [active, cancelled, draft, entered-in-error]
+            default: active
+      responses:
+        '200':
+          description: Coverage records returned
+          content:
+            application/fhir+json:
+              schema:
+                $ref: '#/components/schemas/CoverageBundle'
+
+  /ExplanationOfBenefit:
+    get:
+      operationId: getExplanationOfBenefits
+      summary: Get Explanation of Benefits
+      description: Retrieve EOB records for a patient. Returns claims with provider, diagnosis, procedure codes, and payment details. Supports sorting and pagination.
+      tags:
+        - Claims
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: patient
+          in: query
+          required: true
+          description: FHIR Patient reference
+          schema:
+            type: string
+            example: Patient/pat-8827341
+        - name: _sort
+          in: query
+          required: false
+          description: Sort field (prefix with - for descending)
+          schema:
+            type: string
+            example: -created
+        - name: _count
+          in: query
+          required: false
+          description: Maximum number of results to return
+          schema:
+            type: integer
+            default: 10
+            example: 10
+      responses:
+        '200':
+          description: Claims history returned
+          content:
+            application/fhir+json:
+              schema:
+                $ref: '#/components/schemas/EOBBundle'
+
+  /PractitionerRole:
+    get:
+      operationId: findInNetworkProviders
+      summary: Find In-Network Providers
+      description: Search for in-network providers by network ID and specialty. Returns practitioners with roles, locations, qualifications, and availability.
+      tags:
+        - Providers
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: organization.partof.identifier
+          in: query
+          required: true
+          description: Network identifier from coverage (e.g., NET-IL-PPO-PRIME)
+          schema:
+            type: string
+            example: NET-IL-PPO-PRIME
+        - name: specialty
+          in: query
+          required: false
+          description: Provider taxonomy code (NUCC)
+          schema:
+            type: string
+            example: 208D00000X
+        - name: _include
+          in: query
+          required: false
+          description: Include referenced resources
+          schema:
+            type: string
+            example: PractitionerRole:practitioner
+        - name: _count
+          in: query
+          required: false
+          description: Maximum number of results
+          schema:
+            type: integer
+            default: 20
+      responses:
+        '200':
+          description: Providers found
+          content:
+            application/fhir+json:
+              schema:
+                $ref: '#/components/schemas/PractitionerRoleBundle'
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      description: Access token from /auth/token endpoint
+
+  schemas:
+    TokenResponse:
+      type: object
+      properties:
+        access_token:
+          type: string
+        token_type:
+          type: string
+          enum: [Bearer]
+        expires_in:
+          type: integer
+          description: Token lifetime in seconds
+        scope:
+          type: string
+
+    PatientBundle:
+      type: object
+      properties:
+        resourceType:
+          type: string
+          enum: [Bundle]
+        type:
+          type: string
+          enum: [searchset]
+        total:
+          type: integer
+        entry:
+          type: array
+          items:
+            type: object
+            properties:
+              fullUrl:
+                type: string
+                format: uri
+              resource:
+                $ref: '#/components/schemas/Patient'
+
+    Patient:
+      type: object
+      properties:
+        resourceType:
+          type: string
+          enum: [Patient]
+        id:
+          type: string
+        identifier:
+          type: array
+          items:
+            type: object
+            properties:
+              system:
+                type: string
+                format: uri
+              value:
+                type: string
+        name:
+          type: array
+          items:
+            type: object
+            properties:
+              use:
+                type: string
+              family:
+                type: string
+              given:
+                type: array
+                items:
+                  type: string
+        gender:
+          type: string
+          enum: [male, female, other, unknown]
+        birthDate:
+          type: string
+          format: date
+        address:
+          type: array
+          items:
+            type: object
+            properties:
+              use:
+                type: string
+              line:
+                type: array
+                items:
+                  type: string
+              city:
+                type: string
+              state:
+                type: string
+              postalCode:
+                type: string
+        telecom:
+          type: array
+          items:
+            type: object
+            properties:
+              system:
+                type: string
+              value:
+                type: string
+              use:
+                type: string
+        managingOrganization:
+          type: object
+          properties:
+            reference:
+              type: string
+            display:
+              type: string
+
+    CoverageBundle:
+      type: object
+      properties:
+        resourceType:
+          type: string
+          enum: [Bundle]
+        type:
+          type: string
+          enum: [searchset]
+        total:
+          type: integer
+        entry:
+          type: array
+          items:
+            type: object
+            properties:
+              fullUrl:
+                type: string
+                format: uri
+              resource:
+                $ref: '#/components/schemas/Coverage'
+
+    Coverage:
+      type: object
+      properties:
+        resourceType:
+          type: string
+          enum: [Coverage]
+        id:
+          type: string
+        status:
+          type: string
+          enum: [active, cancelled, draft, entered-in-error]
+        type:
+          type: object
+          properties:
+            coding:
+              type: array
+              items:
+                type: object
+                properties:
+                  system:
+                    type: string
+                  code:
+                    type: string
+                  display:
+                    type: string
+        subscriber:
+          type: object
+          properties:
+            reference:
+              type: string
+            display:
+              type: string
+        period:
+          type: object
+          properties:
+            start:
+              type: string
+              format: date
+            end:
+              type: string
+              format: date
+        payor:
+          type: array
+          items:
+            type: object
+            properties:
+              reference:
+                type: string
+              display:
+                type: string
+        class:
+          type: array
+          description: Coverage classifications (group, plan, network)
+          items:
+            type: object
+            properties:
+              type:
+                type: object
+              value:
+                type: string
+              name:
+                type: string
+        costToBeneficiary:
+          type: array
+          items:
+            type: object
+            properties:
+              type:
+                type: object
+              valueMoney:
+                type: object
+                properties:
+                  value:
+                    type: number
+                  currency:
+                    type: string
+
+    EOBBundle:
+      type: object
+      properties:
+        resourceType:
+          type: string
+          enum: [Bundle]
+        type:
+          type: string
+          enum: [searchset]
+        total:
+          type: integer
+        entry:
+          type: array
+          items:
+            type: object
+            properties:
+              resource:
+                $ref: '#/components/schemas/ExplanationOfBenefit'
+
+    ExplanationOfBenefit:
+      type: object
+      properties:
+        resourceType:
+          type: string
+          enum: [ExplanationOfBenefit]
+        id:
+          type: string
+        status:
+          type: string
+        type:
+          type: object
+        use:
+          type: string
+          enum: [claim, preauthorization, predetermination]
+        patient:
+          type: object
+          properties:
+            reference:
+              type: string
+        created:
+          type: string
+          format: date
+        insurer:
+          type: object
+          properties:
+            reference:
+              type: string
+            display:
+              type: string
+        provider:
+          type: object
+          properties:
+            reference:
+              type: string
+            display:
+              type: string
+        outcome:
+          type: string
+          enum: [queued, complete, error, partial]
+        diagnosis:
+          type: array
+          items:
+            type: object
+            properties:
+              sequence:
+                type: integer
+              diagnosisCodeableConcept:
+                type: object
+        item:
+          type: array
+          items:
+            type: object
+            properties:
+              sequence:
+                type: integer
+              productOrService:
+                type: object
+              servicedDate:
+                type: string
+                format: date
+              net:
+                type: object
+                properties:
+                  value:
+                    type: number
+                  currency:
+                    type: string
+        total:
+          type: array
+          items:
+            type: object
+            properties:
+              category:
+                type: object
+              amount:
+                type: object
+                properties:
+                  value:
+                    type: number
+                  currency:
+                    type: string
+        payment:
+          type: object
+          properties:
+            amount:
+              type: object
+              properties:
+                value:
+                  type: number
+                currency:
+                  type: string
+            date:
+              type: string
+              format: date
+
+    PractitionerRoleBundle:
+      type: object
+      properties:
+        resourceType:
+          type: string
+          enum: [Bundle]
+        type:
+          type: string
+          enum: [searchset]
+        total:
+          type: integer
+        entry:
+          type: array
+          items:
+            type: object
+            properties:
+              resource:
+                oneOf:
+                  - $ref: '#/components/schemas/PractitionerRole'
+                  - $ref: '#/components/schemas/Practitioner'
+
+    PractitionerRole:
+      type: object
+      properties:
+        resourceType:
+          type: string
+          enum: [PractitionerRole]
+        id:
+          type: string
+        practitioner:
+          type: object
+          properties:
+            reference:
+              type: string
+            display:
+              type: string
+        organization:
+          type: object
+          properties:
+            reference:
+              type: string
+            display:
+              type: string
+        specialty:
+          type: array
+          items:
+            type: object
+            properties:
+              coding:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    system:
+                      type: string
+                    code:
+                      type: string
+                    display:
+                      type: string
+        location:
+          type: array
+          items:
+            type: object
+            properties:
+              reference:
+                type: string
+              display:
+                type: string
+        telecom:
+          type: array
+          items:
+            type: object
+            properties:
+              system:
+                type: string
+              value:
+                type: string
+        availableTime:
+          type: array
+          items:
+            type: object
+            properties:
+              daysOfWeek:
+                type: array
+                items:
+                  type: string
+              availableStartTime:
+                type: string
+              availableEndTime:
+                type: string
+
+    Practitioner:
+      type: object
+      properties:
+        resourceType:
+          type: string
+          enum: [Practitioner]
+        id:
+          type: string
+        name:
+          type: array
+          items:
+            type: object
+            properties:
+              use:
+                type: string
+              family:
+                type: string
+              given:
+                type: array
+                items:
+                  type: string
+              prefix:
+                type: array
+                items:
+                  type: string
+        gender:
+          type: string
+        qualification:
+          type: array
+          items:
+            type: object
+            properties:
+              code:
+                type: object
+              issuer:
+                type: object
+                properties:
+                  display:
+                    type: string
