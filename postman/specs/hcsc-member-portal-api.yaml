@@ -8,11 +8,13 @@ info:
   version: 1.0.0
   contact:
     name: HCSC Interoperability Team
+    email: interop@hcsc.com
 
 servers:
   - url: http://127.0.0.1:4500
     description: Local Mock (Postman built-in)
   - url: http://127.0.0.1:4501
+    description: Local Enhanced Mock (dynamic responses)
   - url: https://825f1a38-58e2-45ba-ac0f-e5deee2a9ad4.mock.pstmn.io
     description: Postman Cloud Mock
 
@@ -125,8 +127,11 @@ paths:
 
   /Coverage:
     get:
+      operationId: getMemberCoverage
       summary: Get Member Coverage
       description: Retrieve active coverage for a patient. Returns plan details, coverage period, network information, payor, and cost-to-beneficiary data.
+      tags:
+        - Coverage
       security:
         - bearerAuth: []
       parameters:
@@ -185,15 +190,18 @@ paths:
         - name: _sort
           in: query
           required: false
+          description: Sort field (prefix with - for descending)
           schema:
             type: string
             example: -created
         - name: _count
           in: query
           required: false
+          description: Maximum number of results to return
           schema:
             type: integer
             default: 10
+            example: 10
       responses:
         '200':
           description: Claims history returned
@@ -244,12 +252,14 @@ paths:
           description: Include referenced resources
           schema:
             type: string
+            example: PractitionerRole:practitioner
         - name: _count
           in: query
           required: false
           description: Maximum number of results
           schema:
             type: integer
+            default: 20
       responses:
         '200':
           description: Providers found
