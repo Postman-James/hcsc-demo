@@ -1,13 +1,13 @@
 $kind: http-request
 description: Look up a member by their HCSC member ID. Returns FHIR Patient
   resource with demographics, identifiers, and links to related resources.
-url: "{{fhirBaseUrl}}/Patient?identifier=HCSC-MBR-100234"
+url: "{{fhirBaseUrl}}/Patient?identifier={{memberId}}"
 method: GET
 headers:
   Authorization: Bearer {{accessToken}}
   Accept: application/fhir+json
 queryParams:
-  identifier: HCSC-MBR-100234
+  identifier: "{{memberId}}"
 scripts:
   - type: afterResponse
     code: >-
@@ -23,7 +23,15 @@ scripts:
 
           var patient = bundle.entry[0].resource;
           pm.collectionVariables.set("patientId", patient.id);
-          console.log("Patient: " + patient.name[0].given[0] + " " + patient.name[0].family);
+
+          // Log member from data file vs response
+          var expectedName = pm.iterationData.get("expectedName");
+          if (expectedName) {
+              console.log("Data file member: " + pm.iterationData.get("memberId"));
+              console.log("Expected: " + expectedName + " | Got: " + patient.name[0].given[0] + " " + patient.name[0].family);
+          } else {
+              console.log("Patient: " + patient.name[0].given[0] + " " + patient.name[0].family);
+          }
           console.log("Patient ID: " + patient.id);
       });
     language: text/javascript

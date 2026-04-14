@@ -1,12 +1,12 @@
 $kind: http-example
 request:
-  url: "{{fhirBaseUrl}}/Patient?identifier=HCSC-MBR-100234"
+  url: "{{fhirBaseUrl}}/Patient?identifier={{memberId}}"
   method: GET
   headers:
     Authorization: Bearer {{accessToken}}
     Accept: application/fhir+json
   queryParams:
-    identifier: HCSC-MBR-100234
+    identifier: "{{memberId}}"
 response:
   statusCode: 200
   statusText: OK

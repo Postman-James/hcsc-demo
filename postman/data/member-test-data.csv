@@ -1,0 +1,26 @@
+memberId,expectedName,expectedState,planType
+HCSC-IL-100001,Maria Gonzalez,IL,PPO
+HCSC-IL-100002,James Chen,IL,HMO
+HCSC-IL-100003,Patricia Williams,IL,PPO
+HCSC-IL-100004,Robert Taylor,IL,Medicare Advantage
+HCSC-IL-100005,Linda Martinez,IL,Medicaid
+HCSC-TX-200001,Michael Johnson,TX,PPO
+HCSC-TX-200002,Jennifer Brown,TX,HMO
+HCSC-TX-200003,David Rodriguez,TX,Medicare Advantage
+HCSC-TX-200004,Sarah Davis,TX,PPO
+HCSC-TX-200005,Christopher Wilson,TX,Medicaid
+HCSC-NM-300001,Angela Thompson,NM,HMO
+HCSC-NM-300002,Daniel Garcia,NM,PPO
+HCSC-NM-300003,Karen Anderson,NM,Medicare Advantage
+HCSC-NM-300004,Matthew White,NM,HMO
+HCSC-NM-300005,Jessica Lee,NM,PPO
+HCSC-OK-400001,Brian Harris,OK,PPO
+HCSC-OK-400002,Amanda Clark,OK,HMO
+HCSC-OK-400003,Steven Lewis,OK,Medicaid
+HCSC-OK-400004,Michelle Robinson,OK,PPO
+HCSC-OK-400005,Kevin Walker,OK,Medicare Advantage
+HCSC-MT-500001,Stephanie Hall,MT,HMO
+HCSC-MT-500002,Jason Allen,MT,PPO
+HCSC-MT-500003,Rebecca Young,MT,Medicare Advantage
+HCSC-MT-500004,Ryan King,MT,PPO
+HCSC-MT-500005,Laura Wright,MT,Medicaid

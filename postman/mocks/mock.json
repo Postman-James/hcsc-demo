@@ -1,0 +1,13 @@
+{
+  "id": "cae42bbb-cad7-4f28-b17a-370636217a15",
+  "version": 1,
+  "name": "HCSC Member Portal API Mock",
+  "protocol": "http",
+  "port": 4500,
+  "mockSrc": "./mock.js",
+  "autoRestartOnChange": true,
+  "logging": {
+    "level": "verbose",
+    "showBody": true
+  }
+}
