@@ -109,19 +109,19 @@ paths:
         '200':
           description: Patient found
           content:
-            application/fhir+json:
+            application/json:
               schema:
                 $ref: '#/components/schemas/PatientBundle'
         '404':
           description: No patient found for the given identifier
           content:
-            application/fhir+json:
+            application/json:
               schema:
                 $ref: '#/components/schemas/OperationOutcome'
         '500':
           description: Patient index service error
           content:
-            application/fhir+json:
+            application/json:
               schema:
                 $ref: '#/components/schemas/OperationOutcome'
 
@@ -154,19 +154,19 @@ paths:
         '200':
           description: Coverage records returned
           content:
-            application/fhir+json:
+            application/json:
               schema:
                 $ref: '#/components/schemas/CoverageBundle'
         '404':
           description: No active coverage found for patient
           content:
-            application/fhir+json:
+            application/json:
               schema:
                 $ref: '#/components/schemas/OperationOutcome'
         '500':
           description: Coverage eligibility service error
           content:
-            application/fhir+json:
+            application/json:
               schema:
                 $ref: '#/components/schemas/OperationOutcome'
 
@@ -206,19 +206,19 @@ paths:
         '200':
           description: Claims history returned
           content:
-            application/fhir+json:
+            application/json:
               schema:
                 $ref: '#/components/schemas/EOBBundle'
         '404':
           description: No claims history found for patient
           content:
-            application/fhir+json:
+            application/json:
               schema:
                 $ref: '#/components/schemas/OperationOutcome'
         '500':
           description: Claims processing engine error
           content:
-            application/fhir+json:
+            application/json:
               schema:
                 $ref: '#/components/schemas/OperationOutcome'
 
@@ -264,19 +264,19 @@ paths:
         '200':
           description: Providers found
           content:
-            application/fhir+json:
+            application/json:
               schema:
                 $ref: '#/components/schemas/PractitionerRoleBundle'
         '404':
           description: No providers found for network
           content:
-            application/fhir+json:
+            application/json:
               schema:
                 $ref: '#/components/schemas/OperationOutcome'
         '500':
           description: Provider directory service error
           content:
-            application/fhir+json:
+            application/json:
               schema:
                 $ref: '#/components/schemas/OperationOutcome'
 
