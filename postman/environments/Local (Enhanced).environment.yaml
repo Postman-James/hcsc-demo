@@ -1,8 +1,8 @@
-id: a1b2c3d4-local-4500-hcsc-demo0000001
-name: Local
+id: a1b2c3d4-local-4501-hcsc-enhanced01
+name: Local (Enhanced)
 values:
   - key: fhirBaseUrl
-    value: 'http://localhost:4500'
+    value: 'http://127.0.0.1:4501'
     enabled: true
     type: default
   - key: clientId
