@@ -1,0 +1,5 @@
+$kind: environment
+variables:
+  fhirBaseUrl: https://825f1a38-58e2-45ba-ac0f-e5deee2a9ad4.mock.pstmn.io
+  clientId: demo-client-id
+  clientSecret: demo-client-secret

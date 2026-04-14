@@ -1,0 +1,5 @@
+$kind: environment
+variables:
+  fhirBaseUrl: http://127.0.0.1:4500
+  clientId: demo-client-id
+  clientSecret: demo-client-secret
