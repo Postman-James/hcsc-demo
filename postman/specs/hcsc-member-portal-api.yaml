@@ -73,7 +73,7 @@ paths:
               example:
                 access_token: mock-access-token
                 token_type: Bearer
-                expires_in: "3600"
+                expires_in: 3600
                 scope: patient/*.read
         '404':
           description: Client application not found
@@ -127,7 +127,7 @@ paths:
 
   /Coverage:
     get:
-      operationId: getPatientByMemberId
+      operationId: getMemberCoverage
       summary: Get Member Coverage
       description: Retrieve active coverage for a patient. Returns plan details, coverage period, network information, payor, and cost-to-beneficiary data.
       tags:
@@ -148,7 +148,7 @@ paths:
           description: Filter by coverage status
           schema:
             type: string
-            enum: [active, cancelled, draft, entered-in-error, active]
+            enum: [active, cancelled, draft, entered-in-error]
             default: active
       responses:
         '200':
