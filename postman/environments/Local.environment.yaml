@@ -1,5 +1,16 @@
-$kind: environment
-variables:
-  fhirBaseUrl: http://127.0.0.1:4500
-  clientId: demo-client-id
-  clientSecret: demo-client-secret
+id: a1b2c3d4-local-4500-hcsc-demo0000001
+name: Local
+values:
+  - key: fhirBaseUrl
+    value: 'http://127.0.0.1:4500'
+    enabled: true
+    type: default
+  - key: clientId
+    value: demo-client-id
+    enabled: true
+    type: default
+  - key: clientSecret
+    value: demo-client-secret
+    enabled: true
+    type: secret
+_postman_variable_scope: environment
