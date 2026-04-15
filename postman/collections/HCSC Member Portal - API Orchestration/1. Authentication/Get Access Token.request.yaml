@@ -1,4 +1,5 @@
 $kind: http-request
+name: Get Access Token
 description: OAuth2 client credentials flow. Returns an access token used for
   all subsequent FHIR API calls.
 url: "{{fhirBaseUrl}}/auth/token"
