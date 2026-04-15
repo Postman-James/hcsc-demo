@@ -1,0 +1,65 @@
+{
+  "version": 1,
+  "flows": {
+    "745fbb5f-f507-4639-8435-5a84839cbe5c": {
+      "path": "postman/flows/New flow.flow",
+      "dependencies": [
+        {
+          "local": {
+            "collectionId": "87cb3A5Cc3994C59a5ea3EfD",
+            "requestId": "e168ffabeD2CD3b7af5Aaa82",
+            "filePath": "postman/collections/HCSC Member Portal - API Orchestration/1. Authentication/Get Access Token.request.yaml"
+          },
+          "cloud": {
+            "collectionId": null,
+            "requestId": null
+          }
+        },
+        {
+          "local": {
+            "collectionId": "87cb3A5Cc3994C59a5ea3EfD",
+            "requestId": "FFADbfA4379Bb82AFC1Da8cA",
+            "filePath": "postman/collections/HCSC Member Portal - API Orchestration/2. Patient Lookup/Get Patient by Member ID.request.yaml"
+          },
+          "cloud": {
+            "collectionId": null,
+            "requestId": null
+          }
+        },
+        {
+          "local": {
+            "collectionId": "87cb3A5Cc3994C59a5ea3EfD",
+            "requestId": "ebf71eE5c17d1e882317Bdcd",
+            "filePath": "postman/collections/HCSC Member Portal - API Orchestration/3. Coverage & Benefits/Get Member Coverage.request.yaml"
+          },
+          "cloud": {
+            "collectionId": null,
+            "requestId": null
+          }
+        },
+        {
+          "local": {
+            "collectionId": "87cb3A5Cc3994C59a5ea3EfD",
+            "requestId": "2dCBe1C0Df69e2ac1FD4F530",
+            "filePath": "postman/collections/HCSC Member Portal - API Orchestration/4. Claims History/Get Explanation of Benefits.request.yaml"
+          },
+          "cloud": {
+            "collectionId": null,
+            "requestId": null
+          }
+        },
+        {
+          "local": {
+            "collectionId": "87cb3A5Cc3994C59a5ea3EfD",
+            "requestId": "931F46D9Fc0982f8D6Bb0D38",
+            "filePath": "postman/collections/HCSC Member Portal - API Orchestration/5. Provider Network/Find In-Network Providers.request.yaml"
+          },
+          "cloud": {
+            "collectionId": null,
+            "requestId": null
+          }
+        }
+      ]
+    }
+  }
+}

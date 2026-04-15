@@ -1,0 +1,376 @@
+{
+  "version": 1,
+  "name": "New flow",
+  "description": "",
+  "flow": {
+    "description": "",
+    "nodes": {
+      "yD05mR-a": {
+        "type": "ev/endpoint@3",
+        "pos": {
+          "x": 0,
+          "y": 0
+        },
+        "config": {
+          "inputs": [
+            {
+              "id": "WXf10CC4",
+              "type": "value/reference@2",
+              "kind": "reference",
+              "value": "",
+              "key": "Input 1",
+              "__noIn": true
+            }
+          ],
+          "data": "",
+          "language": "json",
+          "allowAnyType": false,
+          "inputs__expanded": true
+        },
+        "ui": {
+          "data": {
+            "triggerType": "ev/endpoint@3"
+          },
+          "namedInputsExpanded": true
+        }
+      },
+      "E6S2Bbjp": {
+        "type": "task/http-request@1",
+        "pos": {
+          "x": 32,
+          "y": 240
+        },
+        "config": {
+          "element": {
+            "id": "e168ffabeD2CD3b7af5Aaa82",
+            "collection": "87cb3A5Cc3994C59a5ea3EfD",
+            "inExtensibleCollection": true,
+            "name": "Get Access Token",
+            "method": "POST"
+          },
+          "environment": "0c083114-df85-5aee-b1f7-5b3316305af6",
+          "parseBody": "auto",
+          "requestVariables": [
+            {
+              "id": "37rL__Bw",
+              "type": null,
+              "kind": null,
+              "value": null,
+              "key": "fhirBaseUrl"
+            },
+            {
+              "id": "eGV90EUV",
+              "type": "TYPE_STRING",
+              "kind": "string",
+              "value": "demo-client-id",
+              "key": "clientId"
+            },
+            {
+              "id": "KDblIViA",
+              "type": "TYPE_STRING",
+              "kind": "string",
+              "value": "demo-client-secret",
+              "key": "clientSecret"
+            }
+          ],
+          "scriptsModifyEnvVars": true,
+          "trackGlobalEnvironment": false,
+          "requestVariables__expanded": true
+        },
+        "ui": {
+          "data": {},
+          "namedInputsExpanded": true,
+          "requestVariablesExpanded": false
+        }
+      },
+      "y1ra5LRt": {
+        "type": "task/http-request@1",
+        "pos": {
+          "x": 416,
+          "y": 240
+        },
+        "config": {
+          "element": {
+            "id": "FFADbfA4379Bb82AFC1Da8cA",
+            "collection": "87cb3A5Cc3994C59a5ea3EfD",
+            "inExtensibleCollection": true,
+            "name": "Get Patient by Member ID",
+            "method": "GET"
+          },
+          "environment": "0c083114-df85-5aee-b1f7-5b3316305af6",
+          "parseBody": "auto",
+          "requestVariables": [
+            {
+              "id": "enPcvqVL",
+              "type": null,
+              "kind": null,
+              "value": null,
+              "key": "fhirBaseUrl"
+            },
+            {
+              "id": "bCAh0yTD",
+              "type": null,
+              "kind": null,
+              "value": null,
+              "key": "memberId"
+            },
+            {
+              "id": "6xo0Bsch",
+              "type": null,
+              "kind": null,
+              "value": null,
+              "key": "accessToken"
+            }
+          ],
+          "scriptsModifyEnvVars": true,
+          "trackGlobalEnvironment": false,
+          "requestVariables__expanded": true
+        },
+        "ui": {
+          "data": {},
+          "namedInputsExpanded": true,
+          "requestVariablesExpanded": false
+        }
+      },
+      "Zc_ewp9s": {
+        "type": "task/http-request@1",
+        "pos": {
+          "x": 784,
+          "y": 240
+        },
+        "config": {
+          "element": {
+            "id": "ebf71eE5c17d1e882317Bdcd",
+            "collection": "87cb3A5Cc3994C59a5ea3EfD",
+            "inExtensibleCollection": true,
+            "name": "Get Member Coverage",
+            "method": "GET"
+          },
+          "environment": "0c083114-df85-5aee-b1f7-5b3316305af6",
+          "parseBody": "auto",
+          "requestVariables": [
+            {
+              "id": "egqZCiLp",
+              "type": null,
+              "kind": null,
+              "value": null,
+              "key": "fhirBaseUrl"
+            },
+            {
+              "id": "oZy1PE7t",
+              "type": null,
+              "kind": null,
+              "value": null,
+              "key": "patientId"
+            },
+            {
+              "id": "jpSCYQ7G",
+              "type": null,
+              "kind": null,
+              "value": null,
+              "key": "accessToken"
+            }
+          ],
+          "scriptsModifyEnvVars": true,
+          "trackGlobalEnvironment": true,
+          "requestVariables__expanded": true
+        },
+        "ui": {
+          "data": {},
+          "namedInputsExpanded": true,
+          "requestVariablesExpanded": false
+        }
+      },
+      "M_Q8cKHu": {
+        "type": "task/http-request@1",
+        "pos": {
+          "x": 32,
+          "y": 528
+        },
+        "config": {
+          "element": {
+            "id": "2dCBe1C0Df69e2ac1FD4F530",
+            "collection": "87cb3A5Cc3994C59a5ea3EfD",
+            "inExtensibleCollection": true,
+            "name": "Get Explanation of Benefits",
+            "method": "GET"
+          },
+          "environment": "0c083114-df85-5aee-b1f7-5b3316305af6",
+          "parseBody": "auto",
+          "requestVariables": [
+            {
+              "id": "kPMO1mwz",
+              "type": null,
+              "kind": null,
+              "value": null,
+              "key": "fhirBaseUrl"
+            },
+            {
+              "id": "daCViWoj",
+              "type": null,
+              "kind": null,
+              "value": null,
+              "key": "patientId"
+            },
+            {
+              "id": "yg5GqStQ",
+              "type": null,
+              "kind": null,
+              "value": null,
+              "key": "accessToken"
+            }
+          ],
+          "scriptsModifyEnvVars": true,
+          "trackGlobalEnvironment": true,
+          "requestVariables__expanded": true
+        },
+        "ui": {
+          "data": {},
+          "namedInputsExpanded": true,
+          "requestVariablesExpanded": false
+        }
+      },
+      "h45tCn2E": {
+        "type": "task/http-request@1",
+        "pos": {
+          "x": 416,
+          "y": 528
+        },
+        "config": {
+          "element": {
+            "id": "931F46D9Fc0982f8D6Bb0D38",
+            "collection": "87cb3A5Cc3994C59a5ea3EfD",
+            "inExtensibleCollection": true,
+            "name": "Find In-Network Providers",
+            "method": "GET"
+          },
+          "environment": "0c083114-df85-5aee-b1f7-5b3316305af6",
+          "parseBody": "auto",
+          "requestVariables": [
+            {
+              "id": "z8ykXC84",
+              "type": null,
+              "kind": null,
+              "value": null,
+              "key": "fhirBaseUrl"
+            },
+            {
+              "id": "IXrWoIND",
+              "type": null,
+              "kind": null,
+              "value": null,
+              "key": "networkId"
+            },
+            {
+              "id": "3YVQlk4y",
+              "type": null,
+              "kind": null,
+              "value": null,
+              "key": "accessToken"
+            }
+          ],
+          "scriptsModifyEnvVars": true,
+          "trackGlobalEnvironment": true,
+          "requestVariables__expanded": true
+        },
+        "ui": {
+          "data": {},
+          "namedInputsExpanded": true,
+          "requestVariablesExpanded": false
+        }
+      }
+    },
+    "connections": {
+      "LlR45D3n": {
+        "source": "E6S2Bbjp",
+        "target": "y1ra5LRt",
+        "sourcePort": "success",
+        "targetPort": "AI"
+      },
+      "Yd8bTokn": {
+        "source": "E6S2Bbjp",
+        "target": "y1ra5LRt",
+        "sourcePort": "body",
+        "targetPort": "accessToken"
+      },
+      "F__gxPo0": {
+        "source": "y1ra5LRt",
+        "target": "Zc_ewp9s",
+        "sourcePort": "success",
+        "targetPort": "AI"
+      },
+      "qbVzxa4O": {
+        "source": "yD05mR-a",
+        "target": "E6S2Bbjp",
+        "sourcePort": "output|WXf10CC4",
+        "targetPort": "AI"
+      },
+      "J35I2bAA": {
+        "source": "ZugSKUMF",
+        "sourcePort": "@",
+        "target": "yD05mR-a",
+        "targetPort": "inputs|WXf10CC4"
+      },
+      "IhXZ6367": {
+        "source": "Zc_ewp9s",
+        "target": "M_Q8cKHu",
+        "sourcePort": "success",
+        "targetPort": "AI"
+      },
+      "BVx7NTn3": {
+        "source": "M_Q8cKHu",
+        "target": "h45tCn2E",
+        "sourcePort": "success",
+        "targetPort": "AI"
+      }
+    },
+    "annotations": {},
+    "groups": {},
+    "webhook": {
+      "payloadContent": "body-only",
+      "responseType": "default"
+    },
+    "forms": {},
+    "modules": {},
+    "io": {
+      "ZugSKUMF": {
+        "type": "input",
+        "name": "Input 1",
+        "typeDef": {
+          "type": "string"
+        }
+      }
+    },
+    "ports": {},
+    "meta": {},
+    "scenes": {},
+    "scenarios": {
+      "algjLK6f": {
+        "name": "Start Trigger",
+        "type": "scenario@2",
+        "createdOn": 1776258443181,
+        "updatedOn": 1776258443181,
+        "data": {
+          "ZugSKUMF": {
+            "id": "ZugSKUMF",
+            "key": "Input 1",
+            "value": "",
+            "type": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
+    "config": {
+      "definitions": {},
+      "constants": {}
+    }
+  },
+  "lockbox": {},
+  "info": {
+    "_postman_id": "745fbb5f-f507-4639-8435-5a84839cbe5c"
+  },
+  "_postman_exported_at": "2026-04-15T13:56:54.083Z",
+  "_postman_exported_using": "Postman/Local Mode"
+}
