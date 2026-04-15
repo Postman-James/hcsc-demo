@@ -1,0 +1,62 @@
+name: Postman API Pipeline
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  lint:
+    name: Lint OpenAPI Spec
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Postman CLI
+        run: |
+          curl -o- "https://dl-cli.pstmn.io/install/linux64.sh" | sh
+
+      - name: Login to Postman CLI
+        run: postman login --with-api-key ${{ secrets.POSTMAN_API_KEY }}
+
+      - name: Lint OpenAPI spec
+        run: |
+          postman spec lint postman/specs/hcsc-member-portal-api.yaml \
+            --workspace-id f69ec198-a27b-4c19-9d80-d3cec8ffbd53 \
+            --fail-severity error
+
+  api-tests:
+    name: Run HCSC API Collection
+    needs: lint
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install Postman CLI
+        run: |
+          curl -o- "https://dl-cli.pstmn.io/install/linux64.sh" | sh
+
+      - name: Start mock server
+        run: |
+          node postman/mocks/mock.js &
+          sleep 2
+          curl -sf http://localhost:4501/auth/token -X POST || (echo "Mock server failed to start" && exit 1)
+
+      - name: Login to Postman CLI
+        run: postman login --with-api-key ${{ secrets.POSTMAN_API_KEY }}
+
+      - name: Run collection
+        run: |
+          postman collection run 52176198-60410884-6848-4efb-9f59-2800f61d7206 \
+            -e postman/environments/Local.environment.yaml \
+            --env-var "fhirBaseUrl=http://localhost:4501"
