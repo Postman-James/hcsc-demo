@@ -1,43 +1,44 @@
 openapi: 3.1.0
 info:
   title: HCSC Member Portal API
-  description: >
-    FHIR R4-based API for Health Care Service Corporation member portal operations.
-    Supports patient lookup, coverage verification, claims history, and provider
-    network search across HCSC's five operating states (IL, TX, NM, OK, MT).
+  description: 'FHIR R4-based API for Health Care Service Corporation member portal
+    operations. Supports patient lookup, coverage verification, claims history, and
+    provider network search across HCSC''s five operating states (IL, TX, NM, OK,
+    MT).
+
+    '
   version: 1.0.0
   contact:
     name: HCSC Interoperability Team
-    email: interop@hcsc.com
-
+    url: 'https://www.hcsc.com/contact-us'
+    email: 'interop@hcsc.com'
 servers:
-  - url: http://127.0.0.1:4500
-    description: Local Mock (Postman built-in)
-  - url: http://127.0.0.1:4501
-    description: Local Enhanced Mock (dynamic responses)
-  - url: https://825f1a38-58e2-45ba-ac0f-e5deee2a9ad4.mock.pstmn.io
-    description: Postman Cloud Mock
-
+- url: http://127.0.0.1:4500
+  description: Local Mock (Postman built-in)
+- url: http://127.0.0.1:4501
+  description: Local Enhanced Mock (dynamic responses)
+- url: https://825f1a38-58e2-45ba-ac0f-e5deee2a9ad4.mock.pstmn.io
+  description: Postman Cloud Mock
 tags:
-  - name: Authentication
-    description: OAuth2 client credentials token exchange
-  - name: Patient
-    description: FHIR Patient resource lookup
-  - name: Coverage
-    description: Member coverage and benefits
-  - name: Claims
-    description: Explanation of Benefits (EOB) records
-  - name: Providers
-    description: In-network provider search
-
+- name: Authentication
+  description: OAuth2 client credentials token exchange
+- name: Patient
+  description: FHIR Patient resource lookup
+- name: Coverage
+  description: Member coverage and benefits
+- name: Claims
+  description: Explanation of Benefits (EOB) records
+- name: Providers
+  description: In-network provider search
 paths:
   /auth/token:
     post:
       operationId: getAccessToken
       summary: Get Access Token
-      description: OAuth2 client credentials flow. Returns an access token for all subsequent FHIR API calls.
+      description: OAuth2 client credentials flow. Returns an access token for all
+        subsequent FHIR API calls.
       tags:
-        - Authentication
+      - Authentication
       requestBody:
         required: true
         content:
@@ -45,23 +46,28 @@ paths:
             schema:
               type: object
               required:
-                - grant_type
-                - client_id
-                - client_secret
+              - grant_type
+              - client_id
+              - client_secret
               properties:
                 grant_type:
                   type: string
-                  enum: [client_credentials]
+                  description: OAuth2 grant type for the token request.
+                  enum:
+                  - client_credentials
                   example: client_credentials
                 client_id:
                   type: string
+                  description: Client identifier issued to the calling application.
                   example: demo-client-id
                 client_secret:
                   type: string
+                  description: Client secret associated with the client identifier.
                   format: password
                   example: demo-client-secret
                 scope:
                   type: string
+                  description: Requested OAuth scope string for permitted FHIR access.
                   example: patient/*.read
       responses:
         '200':
@@ -81,30 +87,44 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/OperationOutcome'
+              example:
+                resourceType: OperationOutcome
+                issue:
+                - severity: error
+                  code: not-found
+                  diagnostics: Client application was not found for the supplied credentials.
         '500':
           description: Authorization service unavailable
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/OperationOutcome'
-
+              example:
+                resourceType: OperationOutcome
+                issue:
+                - severity: fatal
+                  code: exception
+                  diagnostics: Authorization service is temporarily unavailable.
   /Patient:
     get:
       operationId: getPatientByMemberId
       summary: Get Patient by Member ID
-      description: Look up a member by their HCSC member ID. Returns a FHIR Bundle containing the Patient resource with demographics, identifiers, and organization links.
+      description: Look up a member by their HCSC member ID. Returns a FHIR Bundle
+        containing the Patient resource with demographics, identifiers, and organization
+        links.
       tags:
-        - Patient
+      - Patient
       security:
-        - bearerAuth: []
+      - bearerAuth: []
       parameters:
-        - name: identifier
-          in: query
-          required: true
-          description: HCSC member ID (e.g., HCSC-IL-100001)
-          schema:
-            type: string
-            example: HCSC-IL-100001
+      - name: identifier
+        example: HCSC-IL-100001
+        in: query
+        required: true
+        description: HCSC member ID (e.g., HCSC-IL-100001)
+        schema:
+          type: string
+          example: HCSC-IL-100001
       responses:
         '200':
           description: Patient found
@@ -112,44 +132,96 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/PatientBundle'
+              example:
+                resourceType: Bundle
+                type: searchset
+                total: 1
+                entry:
+                - fullUrl: https://api.hcsc.com/fhir/Patient/pat-8827341
+                  resource:
+                    resourceType: Patient
+                    id: pat-8827341
+                    identifier:
+                    - system: https://hcsc.com/member-id
+                      value: HCSC-IL-100001
+                    name:
+                    - use: official
+                      family: Doe
+                      given:
+                      - Jane
+                    gender: female
+                    birthDate: '1985-04-12'
+                    address:
+                    - use: home
+                      line:
+                      - 123 Main St
+                      city: Chicago
+                      state: IL
+                      postalCode: '60601'
+                    telecom:
+                    - system: phone
+                      value: 312-555-0101
+                      use: mobile
+                    managingOrganization:
+                      reference: Organization/hcsc-il
+                      display: HCSC Illinois
         '404':
           description: No patient found for the given identifier
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/OperationOutcome'
+              example:
+                resourceType: OperationOutcome
+                issue:
+                - severity: error
+                  code: not-found
+                  diagnostics: No patient matched the supplied member identifier.
         '500':
           description: Patient index service error
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/OperationOutcome'
-
+              example:
+                resourceType: OperationOutcome
+                issue:
+                - severity: fatal
+                  code: exception
+                  diagnostics: Patient index service encountered an unexpected error.
   /Coverage:
     get:
       operationId: getMemberCoverage
       summary: Get Member Coverage
-      description: Retrieve active coverage for a patient. Returns plan details, coverage period, network information, payor, and cost-to-beneficiary data.
+      description: Retrieve active coverage for a patient. Returns plan details, coverage
+        period, network information, payor, and cost-to-beneficiary data.
       tags:
-        - Coverage
+      - Coverage
       security:
-        - bearerAuth: []
+      - bearerAuth: []
       parameters:
-        - name: beneficiary
-          in: query
-          required: true
-          description: FHIR Patient reference (e.g., Patient/pat-1234567)
-          schema:
-            type: string
-            example: Patient/pat-8827341
-        - name: status
-          in: query
-          required: false
-          description: Filter by coverage status
-          schema:
-            type: string
-            enum: [active, cancelled, draft, entered-in-error]
-            default: active
+      - name: beneficiary
+        example: Patient/pat-8827341
+        in: query
+        required: true
+        description: FHIR Patient reference (e.g., Patient/pat-1234567)
+        schema:
+          type: string
+          example: Patient/pat-8827341
+      - name: status
+        example: active
+        in: query
+        required: false
+        description: Filter by coverage status
+        schema:
+          type: string
+          enum:
+          - active
+          - cancelled
+          - draft
+          - entered-in-error
+          default: active
+          example: active
       responses:
         '200':
           description: Coverage records returned
@@ -157,51 +229,100 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/CoverageBundle'
+              example:
+                resourceType: Bundle
+                type: searchset
+                total: 1
+                entry:
+                - fullUrl: https://api.hcsc.com/fhir/Coverage/cov-100045
+                  resource:
+                    resourceType: Coverage
+                    id: cov-100045
+                    status: active
+                    type:
+                      coding:
+                      - system: http://terminology.hl7.org/CodeSystem/v3-ActCode
+                        code: EHCPOL
+                        display: extended healthcare
+                    subscriberId: HCSC-IL-100001
+                    beneficiary:
+                      reference: Patient/pat-8827341
+                      display: Jane Doe
+                    period:
+                      start: '2025-01-01'
+                      end: '2025-12-31'
+                    payor:
+                    - reference: Organization/hcsc-il
+                      display: HCSC Illinois
+                    class:
+                    - type: group
+                      value: GRP-2048
+                      name: Premier PPO Group
+                    costToBeneficiary:
+                    - type: deductible
+                      valueQuantity:
+                        value: 1500
+                        currency: USD
         '404':
           description: No active coverage found for patient
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/OperationOutcome'
+              example:
+                resourceType: OperationOutcome
+                issue:
+                - severity: error
+                  code: not-found
+                  diagnostics: No active coverage was found for the specified patient.
         '500':
           description: Coverage eligibility service error
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/OperationOutcome'
-
+              example:
+                resourceType: OperationOutcome
+                issue:
+                - severity: fatal
+                  code: exception
+                  diagnostics: Coverage eligibility service is temporarily unavailable.
   /ExplanationOfBenefit:
     get:
       operationId: getExplanationOfBenefits
       summary: Get Explanation of Benefits
-      description: Retrieve EOB records for a patient. Returns claims with provider, diagnosis, procedure codes, and payment details. Supports sorting and pagination.
+      description: Retrieve EOB records for a patient. Returns claims with provider,
+        diagnosis, procedure codes, and payment details. Supports sorting and pagination.
       tags:
-        - Claims
+      - Claims
       security:
-        - bearerAuth: []
+      - bearerAuth: []
       parameters:
-        - name: patient
-          in: query
-          required: true
-          description: FHIR Patient reference
-          schema:
-            type: string
-            example: Patient/pat-8827341
-        - name: _sort
-          in: query
-          required: false
-          description: Sort field (prefix with - for descending)
-          schema:
-            type: string
-            example: -created
-        - name: _count
-          in: query
-          required: false
-          description: Maximum number of results to return
-          schema:
-            type: integer
-            default: 10
-            example: 10
+      - name: patient
+        example: Patient/pat-8827341
+        in: query
+        required: true
+        description: FHIR Patient reference
+        schema:
+          type: string
+          example: Patient/pat-8827341
+      - name: _sort
+        example: -created
+        in: query
+        required: false
+        description: Sort field (prefix with - for descending)
+        schema:
+          type: string
+          example: -created
+      - name: _count
+        example: 10
+        in: query
+        required: false
+        description: Maximum number of results to return
+        schema:
+          type: integer
+          default: 10
+          example: 10
       responses:
         '200':
           description: Claims history returned
@@ -209,57 +330,113 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/EOBBundle'
+              example:
+                resourceType: Bundle
+                type: searchset
+                total: 1
+                entry:
+                - fullUrl: https://api.hcsc.com/fhir/ExplanationOfBenefit/eob-778899
+                  resource:
+                    resourceType: ExplanationOfBenefit
+                    id: eob-778899
+                    status: active
+                    outcome: complete
+                    patient:
+                      reference: Patient/pat-8827341
+                      display: Jane Doe
+                    provider:
+                      reference: Practitioner/prac-4455
+                      display: Dr. Alex Smith
+                    created: '2025-02-14'
+                    diagnosis:
+                    - diagnosisCodeableConcept:
+                        coding:
+                        - system: http://hl7.org/fhir/sid/icd-10-cm
+                          code: J20.9
+                          display: Acute bronchitis, unspecified
+                    item:
+                    - sequence: 1
+                      productOrService:
+                        coding:
+                        - system: http://www.ama-assn.org/go/cpt
+                          code: '99213'
+                          display: Office outpatient visit
+                      adjudicationAmount:
+                        value: 125
+                        currency: USD
+                    total:
+                    - category: submitted
+                      amount:
+                        value: 125
+                        currency: USD
         '404':
           description: No claims history found for patient
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/OperationOutcome'
+              example:
+                resourceType: OperationOutcome
+                issue:
+                - severity: error
+                  code: not-found
+                  diagnostics: No claims history was found for the specified patient.
         '500':
           description: Claims processing engine error
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/OperationOutcome'
-
+              example:
+                resourceType: OperationOutcome
+                issue:
+                - severity: fatal
+                  code: exception
+                  diagnostics: Claims processing engine returned an unexpected error.
   /PractitionerRole:
     get:
       operationId: findInNetworkProviders
       summary: Find In-Network Providers
-      description: Search for in-network providers by network ID and specialty. Returns practitioners with roles, locations, qualifications, and availability.
+      description: Search for in-network providers by network ID and specialty. Returns
+        practitioners with roles, locations, qualifications, and availability.
       tags:
-        - Providers
+      - Providers
       security:
-        - bearerAuth: []
+      - bearerAuth: []
       parameters:
-        - name: organization.partof.identifier
-          in: query
-          required: true
-          description: Network identifier from coverage (e.g., NET-IL-PPO-PRIME)
-          schema:
-            type: string
-            example: NET-IL-PPO-PRIME
-        - name: specialty
-          in: query
-          required: false
-          description: Provider taxonomy code (NUCC)
-          schema:
-            type: string
-            example: 208D00000X
-        - name: _include
-          in: query
-          required: false
-          description: Include referenced resources
-          schema:
-            type: string
-            example: PractitionerRole:practitioner
-        - name: _count
-          in: query
-          required: false
-          description: Maximum number of results
-          schema:
-            type: integer
-            default: 20
+      - name: organization.partof.identifier
+        example: NET-IL-PPO-PRIME
+        in: query
+        required: true
+        description: Network identifier from coverage (e.g., NET-IL-PPO-PRIME)
+        schema:
+          type: string
+          example: NET-IL-PPO-PRIME
+      - name: specialty
+        example: 208D00000X
+        in: query
+        required: false
+        description: Provider taxonomy code (NUCC)
+        schema:
+          type: string
+          example: 208D00000X
+      - name: _include
+        example: PractitionerRole:practitioner
+        in: query
+        required: false
+        description: Include referenced resources
+        schema:
+          type: string
+          example: PractitionerRole:practitioner
+      - name: _count
+        example: 20
+        in: query
+        required: false
+        description: Maximum number of results
+        schema:
+          type: integer
+          default: 20
+          example: 20
       responses:
         '200':
           description: Providers found
@@ -267,497 +444,890 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/PractitionerRoleBundle'
+              example:
+                resourceType: Bundle
+                type: searchset
+                total: 1
+                entry:
+                - fullUrl: https://api.hcsc.com/fhir/PractitionerRole/role-3321
+                  resource:
+                    resourceType: PractitionerRole
+                    id: role-3321
+                    practitioner:
+                      reference: Practitioner/prac-4455
+                      display: Dr. Alex Smith
+                    organization:
+                      reference: Organization/clinic-204
+                      display: Lakeside Family Clinic
+                    specialty:
+                    - coding:
+                      - system: http://nucc.org/provider-taxonomy
+                        code: 208D00000X
+                        display: General Practice Physician
+                    location:
+                    - reference: Location/loc-100
+                      display: Lakeside Family Clinic - Downtown
+                    telecom:
+                    - system: phone
+                      value: 312-555-0199
+                      use: work
+                    availableTime:
+                    - daysOfWeek:
+                      - mon
+                      - tue
+                      - wed
+                      availableStartTime: 08:00:00
+                      availableEndTime: '17:00:00'
         '404':
           description: No providers found for network
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/OperationOutcome'
+              example:
+                resourceType: OperationOutcome
+                issue:
+                - severity: error
+                  code: not-found
+                  diagnostics: No in-network providers matched the requested network
+                    and specialty.
         '500':
           description: Provider directory service error
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/OperationOutcome'
-
+              example:
+                resourceType: OperationOutcome
+                issue:
+                - severity: fatal
+                  code: exception
+                  diagnostics: Provider directory service is temporarily unavailable.
 components:
   securitySchemes:
     bearerAuth:
       type: http
       scheme: bearer
       description: Access token from /auth/token endpoint
-
   schemas:
+    Identifier:
+      type: object
+      description: Business identifier with a defining system and value.
+      properties:
+        system:
+          $ref: '#/components/schemas/IdentifierSystem'
+        value:
+          $ref: '#/components/schemas/IdentifierValue'
+    HumanName:
+      type: object
+      description: Structured representation of a person name.
+      properties:
+        use:
+          $ref: '#/components/schemas/NameUse'
+        family:
+          $ref: '#/components/schemas/FamilyName'
+        given:
+          $ref: '#/components/schemas/GivenNames'
+        prefix:
+          $ref: '#/components/schemas/NamePrefixes'
+    Address:
+      type: object
+      description: Structured postal address.
+      properties:
+        use:
+          $ref: '#/components/schemas/AddressUse'
+        line:
+          $ref: '#/components/schemas/AddressLines'
+        city:
+          $ref: '#/components/schemas/CityName'
+        state:
+          $ref: '#/components/schemas/StateCode'
+        postalCode:
+          $ref: '#/components/schemas/PostalCode'
+    ContactPoint:
+      type: object
+      description: Contact method such as phone, fax, or email.
+      properties:
+        system:
+          $ref: '#/components/schemas/ContactSystem'
+        value:
+          $ref: '#/components/schemas/ContactValue'
+        use:
+          $ref: '#/components/schemas/ContactUse'
+    Reference:
+      type: object
+      description: Reference to another FHIR resource.
+      properties:
+        reference:
+          $ref: '#/components/schemas/ReferenceString'
+        display:
+          $ref: '#/components/schemas/DisplayText'
+    BundleEntryPatient:
+      type: object
+      description: Wrapper for a single Patient resource in a bundle.
+      properties:
+        fullUrl:
+          $ref: '#/components/schemas/FullUrl'
+        resource:
+          $ref: '#/components/schemas/Patient'
+          description: Patient resource that matched the query.
+    BundleEntryCoverage:
+      type: object
+      description: Wrapper for a single Coverage resource in a bundle.
+      properties:
+        fullUrl:
+          $ref: '#/components/schemas/FullUrl'
+        resource:
+          $ref: '#/components/schemas/Coverage'
+          description: Coverage resource that matched the query.
+    Coding:
+      type: object
+      description: Code from a terminology system with optional human-readable text.
+      properties:
+        system:
+          $ref: '#/components/schemas/CodingSystem'
+        code:
+          $ref: '#/components/schemas/CodingCode'
+        display:
+          $ref: '#/components/schemas/CodingDisplay'
+    CodeableConcept:
+      type: object
+      description: Concept that may be defined by one or more codings.
+      properties:
+        coding:
+          $ref: '#/components/schemas/CodingArray'
+    Period:
+      type: object
+      description: Time range defined by a start and end date.
+      properties:
+        start:
+          $ref: '#/components/schemas/PeriodStartDate'
+        end:
+          $ref: '#/components/schemas/PeriodEndDate'
+    Money:
+      type: object
+      description: Monetary amount with a currency code.
+      properties:
+        value:
+          $ref: '#/components/schemas/MoneyValue'
+        currency:
+          $ref: '#/components/schemas/CurrencyCode'
+    CoverageClass:
+      type: object
+      description: Classification detail such as group, plan, or network.
+      properties:
+        type:
+          $ref: '#/components/schemas/CodeableConcept'
+          description: Codeable concept describing the class category.
+        value:
+          $ref: '#/components/schemas/CoverageClassValue'
+        name:
+          $ref: '#/components/schemas/CoverageClassName'
+    CostToBeneficiary:
+      type: object
+      description: Individual deductible, copay, or coinsurance entry.
+      properties:
+        type:
+          $ref: '#/components/schemas/CodeableConcept'
+          description: Codeable concept describing the cost-sharing category.
+        valueMoney:
+          $ref: '#/components/schemas/Money'
+          description: Monetary value for the member cost responsibility.
+    BundleEntryExplanationOfBenefit:
+      type: object
+      description: Wrapper for a single ExplanationOfBenefit resource in a bundle.
+      properties:
+        resource:
+          $ref: '#/components/schemas/ExplanationOfBenefit'
+          description: ExplanationOfBenefit resource that matched the query.
+    Diagnosis:
+      type: object
+      description: Single diagnosis record linked to the explanation of benefit.
+      properties:
+        sequence:
+          $ref: '#/components/schemas/SequenceNumber'
+        diagnosisCodeableConcept:
+          $ref: '#/components/schemas/CodeableConcept'
+          description: Diagnosis code or concept applied to the claim.
+    ClaimItem:
+      type: object
+      description: Individual billed service or product entry.
+      properties:
+        sequence:
+          $ref: '#/components/schemas/ClaimSequenceNumber'
+        productOrService:
+          $ref: '#/components/schemas/CodeableConcept'
+          description: Codeable concept that identifies the billed service or product.
+        servicedDate:
+          $ref: '#/components/schemas/ServicedDate'
+        net:
+          $ref: '#/components/schemas/Money'
+          description: Submitted net amount for the billed service.
+    TotalAmount:
+      type: object
+      description: Total amount categorized by benefit calculation type.
+      properties:
+        category:
+          $ref: '#/components/schemas/CodeableConcept'
+          description: Codeable concept identifying the total category.
+        amount:
+          $ref: '#/components/schemas/Money'
+          description: Monetary amount for the total category.
+    Payment:
+      type: object
+      description: Payment details associated with the adjudicated claim.
+      properties:
+        amount:
+          $ref: '#/components/schemas/Money'
+          description: Payment amount issued for the claim.
+        date:
+          $ref: '#/components/schemas/PaymentDate'
+    BundleEntryPractitionerResource:
+      type: object
+      description: Wrapper for a single practitioner-related resource in a bundle.
+      properties:
+        resource:
+          $ref: '#/components/schemas/PractitionerResourceReference'
+    Specialty:
+      type: object
+      description: Specialty concept assigned to the practitioner role.
+      properties:
+        coding:
+          $ref: '#/components/schemas/CodingArray'
+    AvailableTime:
+      type: object
+      description: Availability window for one or more days of the week.
+      properties:
+        daysOfWeek:
+          $ref: '#/components/schemas/DaysOfWeek'
+        availableStartTime:
+          $ref: '#/components/schemas/AvailableStartTime'
+        availableEndTime:
+          $ref: '#/components/schemas/AvailableEndTime'
+    Qualification:
+      type: object
+      description: Single qualification entry for the practitioner.
+      properties:
+        code:
+          $ref: '#/components/schemas/CodeableConcept'
+          description: Codeable concept describing the qualification.
+        issuer:
+          $ref: '#/components/schemas/Reference'
+          description: Organization that issued the qualification.
     OperationOutcome:
       type: object
       description: FHIR OperationOutcome for error responses
       properties:
         resourceType:
-          type: string
-          enum: [OperationOutcome]
+          $ref: '#/components/schemas/FHIRResourceTypeOperationOutcome'
         issue:
-          type: array
-          items:
-            type: object
-            properties:
-              severity:
-                type: string
-                enum: [fatal, error, warning, information]
-              code:
-                type: string
-              diagnostics:
-                type: string
-
+          $ref: '#/components/schemas/OperationOutcomeIssueArray'
     TokenResponse:
       type: object
+      description: OAuth2 token response returned after successful client authentication.
       properties:
         access_token:
-          type: string
+          $ref: '#/components/schemas/AccessToken'
         token_type:
-          type: string
-          enum: [Bearer]
+          $ref: '#/components/schemas/TokenType'
         expires_in:
-          type: integer
-          description: Token lifetime in seconds
+          $ref: '#/components/schemas/ExpiresIn'
         scope:
-          type: string
-
+          $ref: '#/components/schemas/OAuthScope'
     PatientBundle:
       type: object
+      description: FHIR Bundle containing one or more Patient resources that match
+        the search criteria.
       properties:
         resourceType:
-          type: string
-          enum: [Bundle]
+          $ref: '#/components/schemas/FHIRResourceTypeBundle'
         type:
-          type: string
-          enum: [searchset]
+          $ref: '#/components/schemas/BundleTypeSearchset'
         total:
-          type: integer
+          $ref: '#/components/schemas/BundleTotal'
         entry:
-          type: array
-          items:
-            type: object
-            properties:
-              fullUrl:
-                type: string
-                format: uri
-              resource:
-                $ref: '#/components/schemas/Patient'
-
+          $ref: '#/components/schemas/PatientEntryArray'
     Patient:
       type: object
+      description: FHIR Patient resource describing a member's demographic and contact
+        information.
       properties:
         resourceType:
-          type: string
-          enum: [Patient]
+          $ref: '#/components/schemas/FHIRResourceTypePatient'
         id:
-          type: string
+          $ref: '#/components/schemas/PatientId'
         identifier:
-          type: array
-          items:
-            type: object
-            properties:
-              system:
-                type: string
-                format: uri
-              value:
-                type: string
+          $ref: '#/components/schemas/IdentifierArray'
         name:
-          type: array
-          items:
-            type: object
-            properties:
-              use:
-                type: string
-              family:
-                type: string
-              given:
-                type: array
-                items:
-                  type: string
+          $ref: '#/components/schemas/HumanNameArray'
+          description: Human names recorded for the patient.
         gender:
-          type: string
-          enum: [male, female, other, unknown]
+          $ref: '#/components/schemas/AdministrativeGender'
         birthDate:
-          type: string
-          format: date
+          $ref: '#/components/schemas/BirthDate'
         address:
-          type: array
-          items:
-            type: object
-            properties:
-              use:
-                type: string
-              line:
-                type: array
-                items:
-                  type: string
-              city:
-                type: string
-              state:
-                type: string
-              postalCode:
-                type: string
+          $ref: '#/components/schemas/AddressArray'
+          description: Postal addresses recorded for the patient.
         telecom:
-          type: array
-          items:
-            type: object
-            properties:
-              system:
-                type: string
-              value:
-                type: string
-              use:
-                type: string
+          $ref: '#/components/schemas/ContactPointArray'
+          description: Contact methods such as phone numbers or email addresses.
         managingOrganization:
-          type: object
-          properties:
-            reference:
-              type: string
-            display:
-              type: string
-
+          $ref: '#/components/schemas/Reference'
+          description: Organization responsible for maintaining the patient record.
     CoverageBundle:
       type: object
+      description: FHIR Bundle containing coverage records returned for a patient
+        eligibility search.
       properties:
         resourceType:
-          type: string
-          enum: [Bundle]
+          $ref: '#/components/schemas/FHIRResourceTypeBundle'
         type:
-          type: string
-          enum: [searchset]
+          $ref: '#/components/schemas/BundleTypeSearchset'
         total:
-          type: integer
+          $ref: '#/components/schemas/BundleTotal'
         entry:
-          type: array
-          items:
-            type: object
-            properties:
-              fullUrl:
-                type: string
-                format: uri
-              resource:
-                $ref: '#/components/schemas/Coverage'
-
+          $ref: '#/components/schemas/CoverageEntryArray'
     Coverage:
       type: object
+      description: FHIR Coverage resource describing a member's insurance plan and
+        benefit details.
       properties:
         resourceType:
-          type: string
-          enum: [Coverage]
+          $ref: '#/components/schemas/FHIRResourceTypeCoverage'
         id:
-          type: string
+          $ref: '#/components/schemas/CoverageId'
         status:
-          type: string
-          enum: [active, cancelled, draft, entered-in-error]
+          $ref: '#/components/schemas/CoverageStatus'
         type:
-          type: object
-          properties:
-            coding:
-              type: array
-              items:
-                type: object
-                properties:
-                  system:
-                    type: string
-                  code:
-                    type: string
-                  display:
-                    type: string
+          $ref: '#/components/schemas/CodeableConcept'
+          description: Benefit classification for the member coverage.
         subscriber:
-          type: object
-          properties:
-            reference:
-              type: string
-            display:
-              type: string
+          $ref: '#/components/schemas/Reference'
+          description: Party who owns or subscribes to the coverage.
         period:
-          type: object
-          properties:
-            start:
-              type: string
-              format: date
-            end:
-              type: string
-              format: date
+          $ref: '#/components/schemas/Period'
+          description: Time range during which the coverage is effective.
         payor:
-          type: array
-          items:
-            type: object
-            properties:
-              reference:
-                type: string
-              display:
-                type: string
+          $ref: '#/components/schemas/ReferenceArray'
+          description: Organizations financially responsible for the coverage.
         class:
-          type: array
+          $ref: '#/components/schemas/CoverageClassArray'
           description: Coverage classifications (group, plan, network)
-          items:
-            type: object
-            properties:
-              type:
-                type: object
-              value:
-                type: string
-              name:
-                type: string
         costToBeneficiary:
-          type: array
-          items:
-            type: object
-            properties:
-              type:
-                type: object
-              valueMoney:
-                type: object
-                properties:
-                  value:
-                    type: number
-                  currency:
-                    type: string
-
+          $ref: '#/components/schemas/CostToBeneficiaryArray'
     EOBBundle:
       type: object
+      description: FHIR Bundle containing ExplanationOfBenefit resources for a member's
+        claims history.
       properties:
         resourceType:
-          type: string
-          enum: [Bundle]
+          $ref: '#/components/schemas/FHIRResourceTypeBundle'
         type:
-          type: string
-          enum: [searchset]
+          $ref: '#/components/schemas/BundleTypeSearchset'
         total:
-          type: integer
+          $ref: '#/components/schemas/BundleTotal'
         entry:
-          type: array
-          items:
-            type: object
-            properties:
-              resource:
-                $ref: '#/components/schemas/ExplanationOfBenefit'
-
+          $ref: '#/components/schemas/ExplanationOfBenefitEntryArray'
     ExplanationOfBenefit:
       type: object
+      description: FHIR ExplanationOfBenefit resource summarizing adjudicated claim
+        and payment information.
       properties:
         resourceType:
-          type: string
-          enum: [ExplanationOfBenefit]
+          $ref: '#/components/schemas/FHIRResourceTypeExplanationOfBenefit'
         id:
-          type: string
+          $ref: '#/components/schemas/ExplanationOfBenefitId'
         status:
-          type: string
+          $ref: '#/components/schemas/ExplanationOfBenefitStatus'
         type:
-          type: object
+          $ref: '#/components/schemas/ExplanationOfBenefitType'
         use:
-          type: string
-          enum: [claim, preauthorization, predetermination]
+          $ref: '#/components/schemas/ExplanationOfBenefitUse'
         patient:
-          type: object
-          properties:
-            reference:
-              type: string
+          $ref: '#/components/schemas/Reference'
+          description: Patient to whom the explanation of benefit applies.
         created:
-          type: string
-          format: date
+          $ref: '#/components/schemas/ExplanationOfBenefitCreated'
         insurer:
-          type: object
-          properties:
-            reference:
-              type: string
-            display:
-              type: string
+          $ref: '#/components/schemas/Reference'
+          description: Organization responsible for adjudicating the claim.
         provider:
-          type: object
-          properties:
-            reference:
-              type: string
-            display:
-              type: string
+          $ref: '#/components/schemas/Reference'
+          description: Rendering or billing provider associated with the claim.
         outcome:
-          type: string
-          enum: [queued, complete, error, partial]
+          $ref: '#/components/schemas/ExplanationOfBenefitOutcome'
         diagnosis:
-          type: array
-          items:
-            type: object
-            properties:
-              sequence:
-                type: integer
-              diagnosisCodeableConcept:
-                type: object
+          $ref: '#/components/schemas/DiagnosisArray'
         item:
-          type: array
-          items:
-            type: object
-            properties:
-              sequence:
-                type: integer
-              productOrService:
-                type: object
-              servicedDate:
-                type: string
-                format: date
-              net:
-                type: object
-                properties:
-                  value:
-                    type: number
-                  currency:
-                    type: string
+          $ref: '#/components/schemas/ClaimItemArray'
         total:
-          type: array
-          items:
-            type: object
-            properties:
-              category:
-                type: object
-              amount:
-                type: object
-                properties:
-                  value:
-                    type: number
-                  currency:
-                    type: string
+          $ref: '#/components/schemas/TotalAmountArray'
         payment:
-          type: object
-          properties:
-            amount:
-              type: object
-              properties:
-                value:
-                  type: number
-                currency:
-                  type: string
-            date:
-              type: string
-              format: date
-
+          $ref: '#/components/schemas/Payment'
+          description: Payment details associated with the adjudicated claim.
     PractitionerRoleBundle:
       type: object
+      description: FHIR Bundle containing provider directory search results for practitioner
+        roles.
       properties:
         resourceType:
-          type: string
-          enum: [Bundle]
+          $ref: '#/components/schemas/FHIRResourceTypeBundle'
         type:
-          type: string
-          enum: [searchset]
+          $ref: '#/components/schemas/BundleTypeSearchset'
         total:
-          type: integer
+          $ref: '#/components/schemas/BundleTotal'
         entry:
-          type: array
-          items:
-            type: object
-            properties:
-              resource:
-                oneOf:
-                  - $ref: '#/components/schemas/PractitionerRole'
-                  - $ref: '#/components/schemas/Practitioner'
-
+          $ref: '#/components/schemas/PractitionerResourceEntryArray'
     PractitionerRole:
       type: object
+      description: FHIR PractitionerRole resource describing a provider's specialty,
+        organization, and availability.
       properties:
         resourceType:
-          type: string
-          enum: [PractitionerRole]
+          $ref: '#/components/schemas/FHIRResourceTypePractitionerRole'
         id:
-          type: string
+          $ref: '#/components/schemas/PractitionerRoleId'
         practitioner:
-          type: object
-          properties:
-            reference:
-              type: string
-            display:
-              type: string
+          $ref: '#/components/schemas/Reference'
+          description: Practitioner associated with the role.
         organization:
-          type: object
-          properties:
-            reference:
-              type: string
-            display:
-              type: string
+          $ref: '#/components/schemas/Reference'
+          description: Organization in which the practitioner performs the role.
         specialty:
-          type: array
-          items:
-            type: object
-            properties:
-              coding:
-                type: array
-                items:
-                  type: object
-                  properties:
-                    system:
-                      type: string
-                    code:
-                      type: string
-                    display:
-                      type: string
+          $ref: '#/components/schemas/SpecialtyArray'
         location:
-          type: array
-          items:
-            type: object
-            properties:
-              reference:
-                type: string
-              display:
-                type: string
+          $ref: '#/components/schemas/ReferenceArray'
+          description: Practice locations where the practitioner role is available.
         telecom:
-          type: array
-          items:
-            type: object
-            properties:
-              system:
-                type: string
-              value:
-                type: string
+          $ref: '#/components/schemas/ContactPointArray'
+          description: Contact methods for scheduling or communicating with the practitioner
+            role.
         availableTime:
-          type: array
-          items:
-            type: object
-            properties:
-              daysOfWeek:
-                type: array
-                items:
-                  type: string
-              availableStartTime:
-                type: string
-              availableEndTime:
-                type: string
-
+          $ref: '#/components/schemas/AvailableTimeArray'
     Practitioner:
       type: object
+      description: FHIR Practitioner resource describing an individual healthcare
+        provider.
       properties:
         resourceType:
-          type: string
-          enum: [Practitioner]
+          $ref: '#/components/schemas/FHIRResourceTypePractitioner'
         id:
-          type: string
+          $ref: '#/components/schemas/PractitionerId'
         name:
-          type: array
-          items:
-            type: object
-            properties:
-              use:
-                type: string
-              family:
-                type: string
-              given:
-                type: array
-                items:
-                  type: string
-              prefix:
-                type: array
-                items:
-                  type: string
+          $ref: '#/components/schemas/HumanNameArray'
+          description: Human names recorded for the practitioner.
         gender:
-          type: string
+          $ref: '#/components/schemas/PractitionerGender'
         qualification:
-          type: array
-          items:
-            type: object
-            properties:
-              code:
-                type: object
-              issuer:
-                type: object
-                properties:
-                  display:
-                    type: string
+          $ref: '#/components/schemas/QualificationArray'
+    IdentifierSystem:
+      type: string
+      description: Namespace that defines the identifier type.
+      format: uri
+    IdentifierValue:
+      type: string
+      description: Identifier value within the specified system.
+    NameUse:
+      type: string
+      description: Purpose for which this name is used, such as official or usual.
+    FamilyName:
+      type: string
+      description: Family or last name.
+    GivenNames:
+      type: array
+      minItems: 0
+      maxItems: 50
+      description: Given names in display order.
+      items:
+        $ref: '#/components/schemas/GivenName'
+    NamePrefixes:
+      type: array
+      minItems: 0
+      maxItems: 50
+      description: Honorific or professional prefixes.
+      items:
+        $ref: '#/components/schemas/NamePrefix'
+    AddressUse:
+      type: string
+      description: Purpose of the address, such as home or work.
+    AddressLines:
+      type: array
+      minItems: 0
+      maxItems: 50
+      description: Street address lines in mailing order.
+      items:
+        $ref: '#/components/schemas/AddressLine'
+    CityName:
+      type: string
+      description: City portion of the address.
+    StateCode:
+      type: string
+      description: State or province portion of the address.
+    PostalCode:
+      type: string
+      description: Postal or ZIP code for the address.
+    ContactSystem:
+      type: string
+      description: Communication channel type, such as phone or email.
+    ContactValue:
+      type: string
+      description: Contact value for the specified communication channel.
+    ContactUse:
+      type: string
+      description: Purpose of the contact point, such as home, work, or mobile.
+    ReferenceString:
+      type: string
+      description: Relative FHIR reference to another resource.
+    DisplayText:
+      type: string
+      description: Human-readable display text for the referenced resource.
+    FullUrl:
+      type: string
+      description: Absolute URL for the bundled resource.
+      format: uri
+    GivenName:
+      type: string
+      description: Single given or first name component.
+    NamePrefix:
+      type: string
+      description: Single honorific or professional prefix.
+    AddressLine:
+      type: string
+      description: Single street address line.
+    CodingSystem:
+      type: string
+      description: Code system that defines the code.
+    CodingCode:
+      type: string
+      description: Machine-readable code value.
+    CodingDisplay:
+      type: string
+      description: Human-readable label for the code.
+    CodingArray:
+      type: array
+      minItems: 0
+      maxItems: 50
+      description: Codes that represent the concept.
+      items:
+        $ref: '#/components/schemas/Coding'
+    PeriodStartDate:
+      type: string
+      description: Start date for the period.
+      format: date
+    PeriodEndDate:
+      type: string
+      description: End date for the period.
+      format: date
+    MoneyValue:
+      type: number
+      description: Numeric monetary amount.
+    CurrencyCode:
+      type: string
+      description: Currency code for the amount.
+    CoverageClassValue:
+      type: string
+      description: Identifier or code assigned to the coverage class.
+    CoverageClassName:
+      type: string
+      description: Display name for the coverage class.
+    SequenceNumber:
+      type: integer
+      description: Order number for the diagnosis entry.
+    ClaimSequenceNumber:
+      type: integer
+      description: Order number for the claim line item.
+    ServicedDate:
+      type: string
+      description: Date when the billed service was performed.
+      format: date
+    PaymentDate:
+      type: string
+      description: Date when payment was issued.
+      format: date
+    DaysOfWeek:
+      type: array
+      minItems: 0
+      maxItems: 50
+      description: Days of the week when the practitioner role is available.
+      items:
+        $ref: '#/components/schemas/DayOfWeek'
+    AvailableStartTime:
+      type: string
+      description: Start time for the availability window.
+    AvailableEndTime:
+      type: string
+      description: End time for the availability window.
+    DayOfWeek:
+      type: string
+      description: Single day of the week when the practitioner role is available.
+    FHIRResourceTypeBundle:
+      type: string
+      description: Identifies this payload as a FHIR Bundle resource.
+      enum:
+      - Bundle
+    BundleTypeSearchset:
+      type: string
+      description: Indicates that the bundle contains search results.
+      enum:
+      - searchset
+    BundleTotal:
+      type: integer
+      description: Total number of matching resources returned.
+    FHIRResourceTypePatient:
+      type: string
+      description: Identifies this payload as a FHIR Patient resource.
+      enum:
+      - Patient
+    PatientId:
+      type: string
+      description: Logical identifier assigned to the patient resource.
+    AdministrativeGender:
+      type: string
+      description: Administrative gender recorded for the patient.
+      enum:
+      - male
+      - female
+      - other
+      - unknown
+    BirthDate:
+      type: string
+      description: Birth date recorded for the patient.
+      format: date
+    FHIRResourceTypeCoverage:
+      type: string
+      description: Identifies this payload as a FHIR Coverage resource.
+      enum:
+      - Coverage
+    CoverageId:
+      type: string
+      description: Logical identifier assigned to the coverage resource.
+    CoverageStatus:
+      type: string
+      description: Lifecycle state of the coverage record.
+      enum:
+      - active
+      - cancelled
+      - draft
+      - entered-in-error
+    FHIRResourceTypeExplanationOfBenefit:
+      type: string
+      description: Identifies this payload as a FHIR ExplanationOfBenefit resource.
+      enum:
+      - ExplanationOfBenefit
+    ExplanationOfBenefitId:
+      type: string
+      description: Logical identifier assigned to the explanation of benefit resource.
+    ExplanationOfBenefitStatus:
+      type: string
+      description: Current processing status of the claim or benefit record.
+    ExplanationOfBenefitType:
+      type: object
+      description: High-level classification of the explanation of benefit.
+    ExplanationOfBenefitUse:
+      type: string
+      description: Indicates the business purpose of the explanation of benefit.
+      enum:
+      - claim
+      - preauthorization
+      - predetermination
+    ExplanationOfBenefitCreated:
+      type: string
+      description: Date when the explanation of benefit record was created.
+      format: date
+    ExplanationOfBenefitOutcome:
+      type: string
+      description: Adjudication outcome for the claim.
+      enum:
+      - queued
+      - complete
+      - error
+      - partial
+    FHIRResourceTypePractitionerRole:
+      type: string
+      description: Identifies this payload as a FHIR PractitionerRole resource.
+      enum:
+      - PractitionerRole
+    PractitionerRoleId:
+      type: string
+      description: Logical identifier assigned to the practitioner role resource.
+    FHIRResourceTypePractitioner:
+      type: string
+      description: Identifies this payload as a FHIR Practitioner resource.
+      enum:
+      - Practitioner
+    PractitionerId:
+      type: string
+      description: Logical identifier assigned to the practitioner resource.
+    PractitionerGender:
+      type: string
+      description: Administrative gender recorded for the practitioner.
+    FHIRResourceTypeOperationOutcome:
+      type: string
+      description: Identifies this payload as a FHIR OperationOutcome resource.
+      enum:
+      - OperationOutcome
+    OperationOutcomeIssue:
+      type: object
+      description: Issue or error reported by the API.
+      properties:
+        severity:
+          $ref: '#/components/schemas/IssueSeverity'
+        code:
+          $ref: '#/components/schemas/IssueCode'
+        diagnostics:
+          $ref: '#/components/schemas/IssueDiagnostics'
+    OperationOutcomeIssueArray:
+      type: array
+      minItems: 0
+      maxItems: 50
+      description: List of issues explaining the outcome.
+      items:
+        $ref: '#/components/schemas/OperationOutcomeIssue'
+    AccessToken:
+      type: string
+      description: Bearer token to use on subsequent API requests.
+    TokenType:
+      type: string
+      description: Type of token returned by the authorization server.
+      enum:
+      - Bearer
+    ExpiresIn:
+      type: integer
+      description: Token lifetime in seconds.
+    OAuthScope:
+      type: string
+      description: Scopes granted to the issued access token.
+    PatientEntryArray:
+      type: array
+      minItems: 0
+      maxItems: 50
+      description: Bundle entries containing matched Patient resources.
+      items:
+        $ref: '#/components/schemas/BundleEntryPatient'
+    IdentifierArray:
+      type: array
+      minItems: 0
+      maxItems: 50
+      description: Business identifiers associated with the member.
+      items:
+        $ref: '#/components/schemas/Identifier'
+    HumanNameArray:
+      type: array
+      minItems: 0
+      maxItems: 50
+      description: Human names recorded for the resource.
+      items:
+        $ref: '#/components/schemas/HumanName'
+    AddressArray:
+      type: array
+      minItems: 0
+      maxItems: 50
+      description: Postal addresses recorded for the resource.
+      items:
+        $ref: '#/components/schemas/Address'
+    ContactPointArray:
+      type: array
+      minItems: 0
+      maxItems: 50
+      description: Contact methods such as phone numbers or email addresses.
+      items:
+        $ref: '#/components/schemas/ContactPoint'
+    CoverageEntryArray:
+      type: array
+      minItems: 0
+      maxItems: 50
+      description: Bundle entries containing matched Coverage resources.
+      items:
+        $ref: '#/components/schemas/BundleEntryCoverage'
+    ReferenceArray:
+      type: array
+      minItems: 0
+      maxItems: 50
+      description: References to related resources.
+      items:
+        $ref: '#/components/schemas/Reference'
+    CoverageClassArray:
+      type: array
+      minItems: 0
+      maxItems: 50
+      description: Coverage classifications such as group, plan, or network.
+      items:
+        $ref: '#/components/schemas/CoverageClass'
+    CostToBeneficiaryArray:
+      type: array
+      minItems: 0
+      maxItems: 50
+      description: Cost-sharing amounts the member is responsible for.
+      items:
+        $ref: '#/components/schemas/CostToBeneficiary'
+    ExplanationOfBenefitEntryArray:
+      type: array
+      minItems: 0
+      maxItems: 50
+      description: Bundle entries containing matched ExplanationOfBenefit resources.
+      items:
+        $ref: '#/components/schemas/BundleEntryExplanationOfBenefit'
+    DiagnosisArray:
+      type: array
+      minItems: 0
+      maxItems: 50
+      description: Diagnosis entries associated with the claim.
+      items:
+        $ref: '#/components/schemas/Diagnosis'
+    ClaimItemArray:
+      type: array
+      minItems: 0
+      maxItems: 50
+      description: Claim line items that were adjudicated.
+      items:
+        $ref: '#/components/schemas/ClaimItem'
+    TotalAmountArray:
+      type: array
+      minItems: 0
+      maxItems: 50
+      description: Aggregated monetary totals for the explanation of benefit.
+      items:
+        $ref: '#/components/schemas/TotalAmount'
+    PractitionerResourceEntryArray:
+      type: array
+      minItems: 0
+      maxItems: 50
+      description: Bundle entries containing PractitionerRole or Practitioner resources.
+      items:
+        $ref: '#/components/schemas/BundleEntryPractitionerResource'
+    SpecialtyArray:
+      type: array
+      minItems: 0
+      maxItems: 50
+      description: Specialty areas associated with the practitioner role.
+      items:
+        $ref: '#/components/schemas/Specialty'
+    AvailableTimeArray:
+      type: array
+      minItems: 0
+      maxItems: 50
+      description: Regular availability schedule for the practitioner role.
+      items:
+        $ref: '#/components/schemas/AvailableTime'
+    QualificationArray:
+      type: array
+      minItems: 0
+      maxItems: 50
+      description: Credentials, licenses, or certifications held by the practitioner.
+      items:
+        $ref: '#/components/schemas/Qualification'
+    IssueSeverity:
+      type: string
+      description: Severity of the issue.
+    IssueCode:
+      type: string
+      description: Issue classification code.
+    IssueDiagnostics:
+      type: string
+      description: Human-readable diagnostic details.
+    PractitionerResourceReference:
+      description: PractitionerRole or Practitioner resource included in the search
+        results.
+      oneOf:
+      - $ref: '#/components/schemas/PractitionerRole'
+      - $ref: '#/components/schemas/Practitioner'
