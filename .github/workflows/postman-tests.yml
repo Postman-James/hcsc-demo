@@ -23,7 +23,10 @@ jobs:
         run: postman login --with-api-key ${{ secrets.POSTMAN_API_KEY }}
 
       - name: Lint OpenAPI spec
-        run: postman api lint postman/specs/hcsc-member-portal-api.yaml
+        run: |
+          postman spec lint postman/specs/hcsc-member-portal-api.yaml \
+            --workspace-id f69ec198-a27b-4c19-9d80-d3cec8ffbd53 \
+            --fail-severity WARN
 
   api-tests:
     name: Run HCSC API Collection
