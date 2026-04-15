@@ -10,7 +10,6 @@ info:
   version: 1.0.0
   contact:
     name: HCSC Interoperability Team
-    url: 'https://www.hcsc.com/contact-us'
     email: 'interop@hcsc.com'
 servers:
 - url: http://127.0.0.1:4500
