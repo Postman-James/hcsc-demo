@@ -24,8 +24,7 @@ jobs:
 
       - name: Lint OpenAPI spec
         run: |
-          postman spec lint postman/specs/hcsc-member-portal-api.yaml \
-            --workspace-id f69ec198-a27b-4c19-9d80-d3cec8ffbd53 \
+          postman spec lint cG9zdG1hbi9zcGVjcy9oY3NjLW1lbWJlci1wb3J0YWwtYXBpLnlhbWw= \
             --fail-severity error
 
   api-tests:
