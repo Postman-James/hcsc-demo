@@ -59,4 +59,5 @@ jobs:
         run: |
           postman collection run 52176198-60410884-6848-4efb-9f59-2800f61d7206 \
             -e postman/environments/Local.environment.yaml \
-            --env-var "fhirBaseUrl=http://localhost:4501"
+            --env-var "fhirBaseUrl=http://localhost:4501" \
+            --report-events
