@@ -24,7 +24,7 @@ jobs:
 
       - name: Lint OpenAPI spec
         run: |
-          postman spec lint cG9zdG1hbi9zcGVjcy9oY3NjLW1lbWJlci1wb3J0YWwtYXBpLnlhbWw= \
+          postman spec lint L1VzZXJzL2phbWVzLmRlbHVjYUBwb3N0bWFuLmNvbS9Eb2N1bWVudHMvZ2l0L2hjc2MtZGVtby9wb3N0bWFuL3NwZWNzL2hjc2MtbWVtYmVyLXBvcnRhbC1hcGkueWFtbA \
             --fail-severity error
 
   api-tests:
